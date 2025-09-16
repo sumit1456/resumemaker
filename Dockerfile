@@ -1,3 +1,5 @@
+RUN chmod +x mvnw
+RUN ./mvnw package -DskipTests
 # Use a lightweight Java 21 image
 FROM eclipse-temurin:21-jdk
 
