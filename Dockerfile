@@ -1,16 +1,28 @@
-RUN chmod +x mvnw
-RUN ./mvnw package -DskipTests
-# Use a lightweight Java 21 image
-FROM eclipse-temurin:21-jdk
+# ---------- Stage 1: Build ----------
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
-# Set a working directory inside the container
+# Set the working directory
 WORKDIR /app
 
-# Copy all source files into the image
+# Copy everything into the container
 COPY . .
 
-# Build the JAR (skip tests to speed up)
+# Ensure the wrapper is executable
+RUN chmod +x mvnw
+
+# Build the jar without running tests
 RUN ./mvnw package -DskipTests
 
-# Tell Docker how to start the app
-CMD ["java","-jar","target/resumemaker-0.0.1-SNAPSHOT.jar"]
+# ---------- Stage 2: Run ----------
+FROM eclipse-temurin:21-jre AS run
+
+WORKDIR /app
+
+# Copy the jar from the build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose port 8080 for Render
+EXPOSE 8080
+
+# Start the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
