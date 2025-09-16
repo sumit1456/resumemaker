@@ -54,7 +54,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 
-    // CORS configuration
+    // CORS configuration changes
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -63,7 +63,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 registry.addMapping("/**")
                         .allowedOrigins(
                             "http://localhost:5173", // for local dev
-                            "https://my-frontend.onrender.com" // replace with deployed React URL
+                            "https://resumemaker-1.onrender.com" // replace with deployed React URL
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE");
             }
