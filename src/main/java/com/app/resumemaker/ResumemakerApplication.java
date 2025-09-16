@@ -44,24 +44,15 @@ public class ResumemakerApplication {
     }
 
     // Security configuration
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable()) // disable CSRF for JSON POSTs
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/ping",
-                    "/login",
-                    "/signup",
-                    "/admin/add",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**"
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
-            .httpBasic(); // optional basic auth for other endpoints
-        return http.build();
-    }
+   @Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            .anyRequest().permitAll()
+        );
+    return http.build();
+}
 
     // CORS configuration
     @Bean
