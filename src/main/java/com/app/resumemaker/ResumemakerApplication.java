@@ -63,7 +63,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 registry.addMapping("/**")
                         .allowedOrigins(
                             "http://localhost:5173", // for local dev
-                            "https://resumemaker-1.onrender.com" // replace with deployed React URL
+                            "https://resumemaker-frontend-4ufl.onrender.com" // replace with deployed React URL
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE");
             }
