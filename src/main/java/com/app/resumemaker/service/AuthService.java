@@ -11,6 +11,7 @@ import com.app.resumemaker.dto.SignupRequestDto;
 import com.app.resumemaker.dto.SignupResponceDto;
 import com.app.resumemaker.exception.InvalidCredentials;
 import com.app.resumemaker.exception.UserExists;
+import com.app.resumemaker.exception.UserNotFound;
 import com.app.resumemaker.model.User;
 import com.app.resumemaker.respository.UserRepository;
 
@@ -45,7 +46,7 @@ public class AuthService {
 	public boolean authenticate(String email, String password) {
 		Optional<User> data = userrepo.findByEmail(email);
 		if(data.isEmpty()) {
-			throw new InvalidCredentials();
+			throw new UserNotFound();
 		}
 		User fromDatabase = data.get();
 		return passEncoder.matches(password, fromDatabase.getPassword());
