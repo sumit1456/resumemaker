@@ -15,4 +15,11 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.body(unf.getMessage());
 	}
+	 
+	 @ExceptionHandler(UserExists.class)
+	 @ResponseStatus(HttpStatus.CONFLICT)
+	 public ResponseEntity<String> userExists(UserExists ue){
+		 return ResponseEntity.status(HttpStatus.CONFLICT)
+				 .body("Email Id already exists, Please continue to Log in");
+	 }
 }
