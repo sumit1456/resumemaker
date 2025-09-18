@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.resumemaker.dto.LoginRequestDTO;
 import com.app.resumemaker.dto.SignupRequestDto;
 import com.app.resumemaker.exception.InvalidCredentials;
+import com.app.resumemaker.model.Resume;
 import com.app.resumemaker.model.User;
 import com.app.resumemaker.respository.UserRepository;
 import com.app.resumemaker.service.AuthService;
@@ -50,6 +51,8 @@ public class UserController {
     	}
     	throw new InvalidCredentials();
     }
+    
+   
     
     
 }
