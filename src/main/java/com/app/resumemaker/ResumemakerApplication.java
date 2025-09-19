@@ -58,8 +58,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                         .allowedOrigins(
                             "http://localhost:5173", "http://localhost:5173/createresume",// for local dev
                             "https://resumemaker-frontend-4ufl.onrender.com",
-                            "http://resumemaker-1.onrender.com/createresume",
-                            "http://resumemaker-1.onrender.com/${resumeId}/saveprojects",
+                            "https://resumemaker-1.onrender.com/createresume",
+                            "https://resumemaker-1.onrender.com/${resumeId}/saveprojects",
                             ""
                             // replace with deployed React URL
                         )
