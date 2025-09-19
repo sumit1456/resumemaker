@@ -56,7 +56,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(
-                            "http://localhost:5173", "http://localhost:5173/createresume",// for local dev
+                            "http://localhost:5173", "https://localhost:5173/createresume",// for local dev
                             "https://resumemaker-frontend-4ufl.onrender.com",
                             "https://resumemaker-1.onrender.com/createresume",
                             "https://resumemaker-1.onrender.com/${resumeId}/saveprojects",
