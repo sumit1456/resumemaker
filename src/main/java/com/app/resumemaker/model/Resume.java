@@ -2,6 +2,7 @@ package com.app.resumemaker.model;
 
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -31,6 +32,12 @@ public class Resume {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    
+    @OneToMany(mappedBy = "resume",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<ProjectDetails> projects = new ArrayList<>();
 
     
    

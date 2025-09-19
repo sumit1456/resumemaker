@@ -6,7 +6,15 @@ import jakarta.persistence.*;
 @Table(name = "project_details")
 public class ProjectDetails {
 
-    @Id
+    public Resume getResume() {
+		return resume;
+	}
+
+	public void setResume(Resume resume) {
+		this.resume = resume;
+	}
+
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

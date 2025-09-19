@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.app.resumemaker.dto.ProjectDetailsDTO;
 import com.app.resumemaker.dto.ResumeDTO;
 import com.app.resumemaker.exception.UserNotFound;
+import com.app.resumemaker.model.ProjectDetails;
 import com.app.resumemaker.model.Resume;
 import com.app.resumemaker.model.User;
+import com.app.resumemaker.respository.ProjectDetailsRepository;
 import com.app.resumemaker.respository.ResumeRepository;
 import com.app.resumemaker.respository.UserRepository;
 
@@ -19,6 +22,10 @@ public class ResumeService {
 	
 	@Autowired
 	private ResumeRepository resumeRepository;
+	
+	
+	@Autowired
+	private ProjectDetailsRepository pdr;
 	
 	@Autowired
 	private UserRepository userRepo;
@@ -52,6 +59,18 @@ public class ResumeService {
 	    resumeRepository.save(rs);
 
 	    return rs;
+	}
+	
+	public ProjectDetails saveProjectDetails(ProjectDetailsDTO dto, long id) {
+		// TODO Auto-generated method stub
+		ProjectDetails pd = new ProjectDetails();
+		pd.setId(dto.getId());
+		pd.setProjectName(dto.getProjectName());
+		pd.setTechStack(dto.getTechStack());
+	    Optional<Resume> resume = resumeRepository.findById(id);
+	    pd.setResume(resume.get());
+	    pdr.save(pd);
+		return pd;
 	}
 
 }
