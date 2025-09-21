@@ -69,6 +69,7 @@ public class ResumeService {
 		pd.setTechStack(dto.getTechStack());
 	    Optional<Resume> resume = resumeRepository.findById(id);
 	    pd.setResume(resume.get());
+	    pd.setDescription(dto.getDescription());
 	    pdr.save(pd);
 		return pd;
 	}

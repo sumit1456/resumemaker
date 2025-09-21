@@ -48,23 +48,21 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 
-    // CORS configuration changes
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins(
-                            "https://localhost:5173", "https://localhost:5173/createresume",// for local dev
-                            "https://resumemaker-frontend-4ufl.onrender.com",
-                            "https://resumemaker-1.onrender.com/createresume",
-                            "https://resumemaker-1.onrender.com/${resumeId}/saveprojects",
-                            ""
-                            // replace with deployed React URL
-                        )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE");
-            }
-        };
-    }
+   @Bean
+   public WebMvcConfigurer corsConfigurer() {
+       return new WebMvcConfigurer() {
+           @Override
+           public void addCorsMappings(CorsRegistry registry) {
+               registry.addMapping("/**")  // all endpoints
+                       .allowedOrigins(
+                           "http://localhost:5173",
+                           "http://resumemaker-1.onrender.com"
+                       )
+                       .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                       .allowedHeaders("*")
+                       .allowCredentials(true); // for cookies / sessions
+           }
+       };
+   }
+
 }

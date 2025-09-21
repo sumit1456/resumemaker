@@ -44,15 +44,9 @@ public class UserController {
 
     
     @PostMapping("/login")
-    public ResponseEntity<String> loginRequest(@RequestBody LoginRequestDTO dto){
-    	boolean ok = authService.authenticate(dto.getEmail(), dto.getPassword());
-    	if(ok) {
-    		return ResponseEntity.ok("Login Successfull");
-    	}
-    	throw new InvalidCredentials();
+    public User loginRequest(@RequestBody LoginRequestDTO dto){
+    	
+    	return authService.authenticate(dto.getEmail(), dto.getPassword());
     }
-    
-   
-    
-    
+      
 }

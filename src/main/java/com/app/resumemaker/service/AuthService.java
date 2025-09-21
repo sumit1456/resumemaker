@@ -43,13 +43,18 @@ public class AuthService {
 		
 	}
 	
-	public boolean authenticate(String email, String password) {
+	public User authenticate(String email, String password) {
 		Optional<User> data = userrepo.findByEmail(email);
 		if(data.isEmpty()) {
 			throw new UserNotFound("Please Enter valid credentials");
 		}
 		User fromDatabase = data.get();
-		return passEncoder.matches(password, fromDatabase.getPassword());
+		boolean b = passEncoder.matches(password, fromDatabase.getPassword());
+		if(!b) {
+			throw new InvalidCredentials();
+		}
+		
+		return data.get();
 	}
 
 	
