@@ -6,40 +6,36 @@ import jakarta.persistence.*;
 @Table(name = "project_details")
 public class ProjectDetails {
 
-    public Resume getResume() {
-		return resume;
-	}
-
-	public void setResume(Resume resume) {
-		this.resume = resume;
-	}
-
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "project_name", nullable = false, length = 150)
     private String projectName;
 
-    @Column(columnDefinition = "TEXT")   // allows long descriptions
+    /**
+     * A long free-text description (can include newlines or Markdown).
+     * Stored as a TEXT column.
+     */
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "tech_stack", length = 255)
     private String techStack;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resume_id", nullable = false)
     private Resume resume;
-
 
     // ---------- Constructors ----------
     public ProjectDetails() {
     }
 
-    public ProjectDetails(String projectName, String description, String techStack) {
+    public ProjectDetails(String projectName, String description, String techStack, Resume resume) {
         this.projectName = projectName;
         this.description = description;
         this.techStack = techStack;
+        this.resume = resume;
     }
 
     // ---------- Getters & Setters ----------
@@ -75,6 +71,14 @@ public class ProjectDetails {
         this.techStack = techStack;
     }
 
+    public Resume getResume() {
+        return resume;
+    }
+
+    public void setResume(Resume resume) {
+        this.resume = resume;
+    }
+
     @Override
     public String toString() {
         return "ProjectDetails{" +
@@ -82,6 +86,20 @@ public class ProjectDetails {
                 ", projectName='" + projectName + '\'' +
                 ", description='" + description + '\'' +
                 ", techStack='" + techStack + '\'' +
+                ", resumeId=" + (resume != null ? resume.getId() : null) +
                 '}';
     }
+
+	
+	
+	@Column(name = "link")
+	private String link;
+
+	public String getLink() {
+	    return link;
+	}
+
+	public void setLink(String link) {
+	    this.link = link;
+	}
 }

@@ -1,70 +1,85 @@
 package com.app.resumemaker.dto;
 
-public class ResumeDTO {
-	
-	 private String name;
-	    private String email;
-	    private String phone;
-	    
-	    
-	    public String getName() {
-			return name;
-		}
-		public void setName(String name) {
-			this.name = name;
-		}
-		public String getEmail() {
-			return email;
-		}
-		public void setEmail(String email) {
-			this.email = email;
-		}
-		public String getPhone() {
-			return phone;
-		}
-		public void setPhone(String phone) {
-			this.phone = phone;
-		}
-		public String getUniversity() {
-			return university;
-		}
-		public void setUniversity(String university) {
-			this.university = university;
-		}
-		public String getPassoutYear() {
-			return passoutYear;
-		}
-		public void setPassoutYear(String passoutYear) {
-			this.passoutYear = passoutYear;
-		}
-		public String getStream() {
-			return stream;
-		}
-		public void setStream(String stream) {
-			this.stream = stream;
-		}
-		@Override
-		public String toString() {
-			return "ResumeDTO [name=" + name + ", email=" + email + ", phone=" + phone + ", university=" + university
-					+ ", passoutYear=" + passoutYear + ", stream=" + stream + ", experience=" + experience + ", skills="
-					+ skills + "]";
-		}
-		public String getExperience() {
-			return experience;
-		}
-		public void setExperience(String experience) {
-			this.experience = experience;
-		}
-		public String getSkills() {
-			return skills;
-		}
-		public void setSkills(String skills) {
-			this.skills = skills;
-		}
-		private String university;
-	    private String passoutYear;
-	    private String stream;
-	    private String experience;
-	    private String skills;
+import java.util.List;
 
+import com.app.resumemaker.model.User;
+
+public class ResumeDTO {
+
+    private BsaicInfoDTO details;          // Basic info including name, title, summary, skills
+    private ContactDTO contact;            // Contact details
+    private List<ExperienceDTO> experiences;
+    private List<ProjectDTO> projects;
+    private List<EducationDTO> educationList;
+    private List<CertificationsDTO> certifications;
+    private Long userId;
+
+    
+
+	
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	@Override
+    public String toString() {
+        return "ResumeDTO [details=" + details + ", contact=" + contact + ", experiences=" + experiences
+                + ", projects=" + projects + ", educationList=" + educationList + ", certifications=" + certifications + "]";
+    }
+
+    // --- Getters & Setters ---
+    public BsaicInfoDTO getDetails() {
+        return details;
+    }
+
+    public void setDetails(BsaicInfoDTO details) {
+        this.details = details;
+    }
+
+    public ContactDTO getContact() {
+        return contact;
+    }
+
+    public void setContact(ContactDTO contact) {
+        this.contact = contact;
+    }
+
+    public List<ExperienceDTO> getExperiences() {
+        return experiences;
+    }
+
+    public void setExperiences(List<ExperienceDTO> experiences) {
+        this.experiences = experiences;
+    }
+
+    public List<ProjectDTO> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<ProjectDTO> projects) {
+        this.projects = projects;
+    }
+
+    public List<EducationDTO> getEducationList() {
+        return educationList;
+    }
+
+    public void setEducationList(List<EducationDTO> educationList) {
+        this.educationList = educationList;
+    }
+
+    public List<CertificationsDTO> getCertifications() {
+        return certifications;
+    }
+
+    public void setCertifications(List<CertificationsDTO> certifications) {
+        this.certifications = certifications;
+    }
+
+	
 }
