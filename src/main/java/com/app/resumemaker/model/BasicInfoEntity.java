@@ -15,8 +15,7 @@ public class BasicInfoEntity {
     private String name;
     private String title;
     private String summary;
-    private String skills;
-
+  
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "contact_id", referencedColumnName = "id")
     private ContactEntity contact;
@@ -34,8 +33,6 @@ public class BasicInfoEntity {
     public String getSummary() { return summary; }
     public void setSummary(String summary) { this.summary = summary; }
 
-    public String getSkills() { return skills; }
-    public void setSkills(String skills) { this.skills = skills; }
 
     public ContactEntity getContact() { return contact; }
     public void setContact(ContactEntity contact) { this.contact = contact; }

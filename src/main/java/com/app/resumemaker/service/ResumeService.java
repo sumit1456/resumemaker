@@ -19,7 +19,8 @@ public class ResumeService {
     
     @Autowired
 	private UserRepository userrepo;
-
+    
+    
     public void saveResume(ResumeDTO dto) {
         if (dto == null || dto.getDetails() == null || dto.getContact() == null) return;
 
@@ -31,7 +32,6 @@ public class ResumeService {
         basicInfo.setName(dto.getDetails().getName());
         basicInfo.setTitle(dto.getDetails().getTitle());
         basicInfo.setSummary(dto.getDetails().getSummary());
-        basicInfo.setSkills(dto.getDetails().getSkills());
 
         ContactEntity contact = new ContactEntity();
         contact.setPhone(dto.getContact().getPhone());
@@ -44,7 +44,7 @@ public class ResumeService {
         resume.setBasicInfo(basicInfo);
 
         resume.setExperienceSummary(dto.getDetails().getSummary());
-        resume.setSkillsSummary(dto.getDetails().getSkills());
+        
 
         // ---------------- Link and Save Children ----------------
         if (dto.getExperiences() != null) {
@@ -89,11 +89,24 @@ public class ResumeService {
             });
         }
         
-        
-       Optional<User> opt = userrepo.findById(dto.getUserId());
-       resume.setUser(opt.get());
+        if (dto.getSkills() != null) {
+            dto.getSkills().forEach(skillDto -> {
+                if (skillDto.getName() != null && !skillDto.getName().isEmpty()) {
+                    Skill sk = new Skill();
+                    sk.setName(skillDto.getName());
+                    resume.addSkill(sk); // <-- This adds to Resume's list and sets resume reference
+                }
+            });
+        }
+
+
+        // ---------------- Set User ----------------
+        Optional<User> opt = userrepo.findById(dto.getUserId());
+        opt.ifPresent(resume::setUser);
+
         // ---------------- Save Resume (cascade saves all children) ----------------
         resumeRepository.save(resume);
     }
+
 
 }

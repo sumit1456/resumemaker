@@ -12,24 +12,18 @@ public class ResumeDTO {
     private List<ProjectDTO> projects;
     private List<EducationDTO> educationList;
     private List<CertificationsDTO> certifications;
+
+    // ✅ Added: skills to match the Skill entity
+    private List<SkillDTO> skills;
+
     private Long userId;
 
-    
+    public Long getUserId() {
+        return userId;
+    }
 
-	
-
-	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
-	@Override
-    public String toString() {
-        return "ResumeDTO [details=" + details + ", contact=" + contact + ", experiences=" + experiences
-                + ", projects=" + projects + ", educationList=" + educationList + ", certifications=" + certifications + "]";
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     // --- Getters & Setters ---
@@ -79,6 +73,21 @@ public class ResumeDTO {
 
     public void setCertifications(List<CertificationsDTO> certifications) {
         this.certifications = certifications;
+    }
+
+    public List<SkillDTO> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<SkillDTO> skills) {
+        this.skills = skills;
+    }
+
+    @Override
+    public String toString() {
+        return "ResumeDTO [details=" + details + ", contact=" + contact + ", experiences=" + experiences
+                + ", projects=" + projects + ", educationList=" + educationList
+                + ", certifications=" + certifications + ", skills=" + skills + "]";
     }
 
 	

@@ -2,7 +2,6 @@ package com.app.resumemaker.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -13,8 +12,8 @@ public class Resume {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    
-	@OneToOne(cascade = CascadeType.ALL)
+    // ---------- Relationships ----------
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "basic_info_id", referencedColumnName = "id")
     private BasicInfoEntity basicInfo;
 
@@ -22,13 +21,7 @@ public class Resume {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public User getUser() {
-		return user;
-	}
-	public void setUser(User user) {
-		this.user = user;
-	}
-	@OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Experience> experiences = new ArrayList<>();
 
     @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -40,75 +33,64 @@ public class Resume {
     @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Certification> certifications = new ArrayList<>();
 
-    @Column(columnDefinition = "TEXT")
-    private String experienceSummary; // optional text summary
+    /** ✅ Skills relationship */
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Skill> skills = new ArrayList<>();
 
+    // Optional text summaries
     @Column(columnDefinition = "TEXT")
-    private String skillsSummary; // optional text summary
-  
-   
-    // ===== Getters & Setters =====
+    private String experienceSummary;
+
+    // ---------- Getters & Setters ----------
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public BasicInfoEntity getBasicInfo() { return basicInfo; }
     public void setBasicInfo(BasicInfoEntity basicInfo) { this.basicInfo = basicInfo; }
 
-  
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
     public List<Experience> getExperiences() { return experiences; }
-    public void setExperiences(List<Experience> experiences) { 
-        this.experiences = experiences; 
-        experiences.forEach(exp -> exp.setResume(this)); // ensure bidirectional link
+    public void setExperiences(List<Experience> experiences) {
+        this.experiences = experiences;
+        experiences.forEach(e -> e.setResume(this));
     }
 
     public List<Education> getEducationList() { return educationList; }
     public void setEducationList(List<Education> educationList) {
         this.educationList = educationList;
-        educationList.forEach(ed -> ed.setResume(this));
+        educationList.forEach(e -> e.setResume(this));
     }
 
     public List<ProjectDetails> getProjects() { return projects; }
-    public void setProjects(List<ProjectDetails> projects) { 
-        this.projects = projects; 
+    public void setProjects(List<ProjectDetails> projects) {
+        this.projects = projects;
         projects.forEach(p -> p.setResume(this));
     }
 
     public List<Certification> getCertifications() { return certifications; }
-    public void setCertifications(List<Certification> certifications) { 
-        this.certifications = certifications; 
+    public void setCertifications(List<Certification> certifications) {
+        this.certifications = certifications;
         certifications.forEach(c -> c.setResume(this));
+    }
+
+    public List<Skill> getSkills() { return skills; }
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+        skills.forEach(s -> s.setResume(this));
     }
 
     public String getExperienceSummary() { return experienceSummary; }
     public void setExperienceSummary(String experienceSummary) { this.experienceSummary = experienceSummary; }
 
-    public String getSkillsSummary() { return skillsSummary; }
-    public void setSkillsSummary(String skillsSummary) { this.skillsSummary = skillsSummary; }
-    
-    // ===== Helper Methods =====
-    public void addExperience(Experience exp) {
-        experiences.add(exp);
-        exp.setResume(this);
-    }
+    // ---------- Helper Methods ----------
+    public void addExperience(Experience e) { experiences.add(e); e.setResume(this); }
+    public void addEducation(Education e) { educationList.add(e); e.setResume(this); }
+    public void addProject(ProjectDetails p) { projects.add(p); p.setResume(this); }
+    public void addCertification(Certification c) { certifications.add(c); c.setResume(this); }
 
-    public void addEducation(Education edu) {
-        educationList.add(edu);
-        edu.setResume(this);
-    }
-
-    public void addProject(ProjectDetails project) {
-        projects.add(project);
-        project.setResume(this);
-    }
-
-    public void addCertification(Certification cert) {
-        certifications.add(cert);
-        cert.setResume(this);
-    }
-	public void setExperiences(String string) {
-		// TODO Auto-generated method stub
-		
-	}
-	
+    /** Add or remove individual skills */
+    public void addSkill(Skill s) { skills.add(s); s.setResume(this); }
+    public void removeSkill(Skill s) { skills.remove(s); s.setResume(null); }
 }
