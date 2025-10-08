@@ -1,5 +1,6 @@
 package com.app.resumemaker.exception;
 
+import org.hibernate.exception.JDBCConnectionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -22,4 +23,12 @@ public class GlobalExceptionHandler {
 		 return ResponseEntity.status(HttpStatus.CONFLICT)
 				 .body("Email Id already exists, Please continue to Log in");
 	 }
+	 
+	 @ExceptionHandler(JDBCConnectionException.class)
+		 public ResponseEntity<String> jdbcConnectionException(){
+			return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+					.body("Problem in connecting database");
+		 
+	 }
+	 
 }

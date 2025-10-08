@@ -5,15 +5,33 @@ import java.util.List;
 import com.app.resumemaker.model.User;
 
 public class ResumeDTO {
+    private long id;
+    public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    private BsaicInfoDTO details;          // Basic info including name, title, summary, skills
+	private BsaicInfoDTO details;          // Basic info including name, title, summary, skills
     private ContactDTO contact;            // Contact details
     private List<ExperienceDTO> experiences;
     private List<ProjectDTO> projects;
     private List<EducationDTO> educationList;
     private List<CertificationsDTO> certifications;
+    
+    private int templateId;
 
-    // ✅ Added: skills to match the Skill entity
+    public int getTemplateId() {
+		return templateId;
+	}
+    
+    private String title;
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+
+	// ✅ Added: skills to match the Skill entity
     private List<SkillDTO> skills;
 
     private Long userId;
@@ -89,6 +107,12 @@ public class ResumeDTO {
                 + ", projects=" + projects + ", educationList=" + educationList
                 + ", certifications=" + certifications + ", skills=" + skills + "]";
     }
+
+	public void setTemplateId(int templateId) {
+		this.templateId = templateId;
+	}
+
+	
 
 	
 }

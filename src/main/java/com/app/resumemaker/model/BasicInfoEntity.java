@@ -14,6 +14,8 @@ public class BasicInfoEntity {
 
     private String name;
     private String title;
+    
+    @Column(columnDefinition = "TEXT")
     private String summary;
   
     @OneToOne(cascade = CascadeType.ALL)
