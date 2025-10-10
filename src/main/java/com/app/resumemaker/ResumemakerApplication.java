@@ -56,7 +56,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                registry.addMapping("/**")  // all endpoints
                        .allowedOrigins(
                            "http://localhost:5173",
-                           "http://resumemaker-1.onrender.com"
+                           "https://resumemaker-frontend-master.onrender.com"
                        )
                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                        .allowedHeaders("*")
