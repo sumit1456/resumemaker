@@ -1,7 +1,5 @@
 package com.app.resumemaker;
 
-
-
 import java.util.Map;
 
 import org.springframework.boot.SpringApplication;
@@ -14,11 +12,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-
-
 @SpringBootApplication
 public class ResumemakerApplication {
-    // comment to test
+
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(ResumemakerApplication.class);
         String port = System.getenv("PORT"); // Dynamic port for Render
@@ -28,41 +24,39 @@ public class ResumemakerApplication {
         app.run(args);
     }
 
-    // Password encoder for user registration / login
+    // ✅ Password encoder for user registration / login
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Swagger/OpenAPI configuration
-    
+    // ✅ Security configuration — disable CSRF and allow all requests (adjust later if needed)
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            );
+        return http.build();
+    }
 
-    // Security configuration
-   @Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-            .anyRequest().permitAll()
-        );
-    return http.build();
-}
-
-   @Bean
-   public WebMvcConfigurer corsConfigurer() {
-       return new WebMvcConfigurer() {
-           @Override
-           public void addCorsMappings(CorsRegistry registry) {
-               registry.addMapping("/**")  // all endpoints
-                       .allowedOrigins(
-                           "http://localhost:5173",
-                           "https://resumemaker-frontend-master.onrender.com"
-                       )
-                       .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                       .allowedHeaders("*")
-                       .allowCredentials(true); // for cookies / sessions
-           }
-       };
-   }
-
+    // ✅ Global CORS Configuration for both Local & Deployed Frontend
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins(
+                            "http://localhost:5173",                         // local dev (Vite)
+                            "https://resumemaker-frontend-master.onrender.com", // deployed frontend
+                            "https://resumemaker-frontend.vercel.app"          // if deployed on Vercel
+                        )
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true); // allow cookies / sessions if needed
+            }
+        };
+    }
 }
