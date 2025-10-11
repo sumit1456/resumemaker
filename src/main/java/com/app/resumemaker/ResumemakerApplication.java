@@ -1,7 +1,6 @@
 package com.app.resumemaker;
 
 import java.util.Map;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -24,24 +23,29 @@ public class ResumemakerApplication {
         app.run(args);
     }
 
-    // ✅ Password encoder for user registration / login
+    // Password encoder for registration/login
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ Security configuration — disable CSRF and allow all requests (adjust later if needed)
+    // Security configuration — disable CSRF and allow all requests including Swagger
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
                 .anyRequest().permitAll()
             );
         return http.build();
     }
 
-    // ✅ Global CORS Configuration for both Local & Deployed Frontend
+    // Global CORS configuration
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -49,13 +53,13 @@ public class ResumemakerApplication {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(
-                            "http://localhost:5173",                         // local dev (Vite)
+                            "http://localhost:5173",                          // local dev
                             "https://resumemaker-frontend-master.onrender.com", // deployed frontend
-                            "https://resumemaker-frontend.vercel.app"          // if deployed on Vercel
+                            "https://resumemaker-frontend.vercel.app"         // optional
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
-                        .allowCredentials(true); // allow cookies / sessions if needed
+                        .allowCredentials(true);
             }
         };
     }
