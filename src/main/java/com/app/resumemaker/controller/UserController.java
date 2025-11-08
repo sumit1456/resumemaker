@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.resumemaker.dto.GoogleLoginRequest;
 import com.app.resumemaker.dto.LoginRequestDTO;
 import com.app.resumemaker.dto.SignupRequestDto;
 import com.app.resumemaker.exception.InvalidCredentials;
@@ -48,5 +49,18 @@ public class UserController {
     	
     	return authService.authenticate(dto.getEmail(), dto.getPassword());
     }
+    
+
+    @PostMapping("/google-login")
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest request) {
+    	System.out.println("The request was made");
+        try {
+            User user = authService.loginWithGoogle(request.getToken());
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Google login failed: " + e.getMessage());
+        }
+    }
+
       
 }
