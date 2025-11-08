@@ -3,10 +3,13 @@ package com.app.resumemaker.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,6 +34,21 @@ public class ResumeController {
 	    return ResponseEntity.ok("Resume saved successfully");
 	}
 	
+	@PutMapping("/update/{resumeId}")
+	public ResponseEntity<String> updateAll(@RequestBody ResumeDTO dto, @PathVariable Long resumeId) {
+	    try {
+	        rs.updateResume(resumeId, dto);
+	        return ResponseEntity.ok("Resume updated successfully");
+	    } catch (RuntimeException ex) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+	    } catch (Exception ex) {
+	        ex.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("Error updating resume: " + ex.getMessage());
+	    }
+	}
+
+	
     // --------------------------
     // Get all resumes for a user
     // --------------------------
@@ -52,6 +70,13 @@ public class ResumeController {
         }
         return ResponseEntity.ok(resume);
     }
+    
+    @DeleteMapping("/my-resumes/{resumeId}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long resumeId) {
+        String res = rs.deleteResume(resumeId);
+        return ResponseEntity.ok(res);
+    }
+
    
 
 

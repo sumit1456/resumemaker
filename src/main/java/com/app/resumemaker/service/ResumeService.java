@@ -120,6 +120,121 @@ public class ResumeService {
         // Save Resume
         resumeRepository.save(resume);
     }
+    
+    
+    
+    public void updateResume(Long resumeId, ResumeDTO dto) {
+        if (resumeId == null || dto == null) return;
+
+        // Find existing resume
+        Resume existingResume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new RuntimeException("Resume not found with ID: " + resumeId));
+
+        // Update basic fields
+        existingResume.setTitle(dto.getTitle());
+        existingResume.setTemplateId(dto.getTemplateId());
+        existingResume.setExperienceSummary(dto.getDetails() != null ? dto.getDetails().getSummary() : null);
+
+        // Update basic info
+        BasicInfoEntity basicInfo = existingResume.getBasicInfo();
+        if (basicInfo == null) {
+            basicInfo = new BasicInfoEntity();
+            existingResume.setBasicInfo(basicInfo);
+        }
+
+        if (dto.getDetails() != null) {
+            basicInfo.setName(dto.getDetails().getName());
+            basicInfo.setTitle(dto.getDetails().getTitle());
+            basicInfo.setSummary(dto.getDetails().getSummary());
+        }
+
+        // Update contact info
+        ContactEntity contact = basicInfo.getContact();
+        if (contact == null) {
+            contact = new ContactEntity();
+            basicInfo.setContact(contact);
+        }
+        if (dto.getContact() != null) {
+            contact.setPhone(dto.getContact().getPhone());
+            contact.setEmail(dto.getContact().getEmail());
+            contact.setGithub(dto.getContact().getGithub());
+            contact.setLinkedin(dto.getContact().getLinkedin());
+            contact.setLocation(dto.getContact().getLocation());
+        }
+
+        // ✅ Clear and re-add collections (simplest approach)
+        existingResume.getExperiences().clear();
+        if (dto.getExperiences() != null) {
+            dto.getExperiences().forEach(expDto -> {
+                Experience exp = new Experience();
+                exp.setPosition(expDto.getPosition());
+                exp.setCompany(expDto.getCompany());
+                exp.setDuration(expDto.getDuration());
+                exp.setLocation(expDto.getLocation());
+                exp.setResume(existingResume);
+                existingResume.getExperiences().add(exp);
+            });
+        }
+
+        existingResume.getProjects().clear();
+        if (dto.getProjects() != null) {
+            dto.getProjects().forEach(projDto -> {
+                ProjectDetails proj = new ProjectDetails();
+                proj.setProjectName(projDto.getName());
+                proj.setTechStack(projDto.getTechnologies());
+                proj.setDescription(projDto.getDescriptionAsText());
+                proj.setLink(projDto.getLink());
+                proj.setResume(existingResume);
+                existingResume.getProjects().add(proj);
+            });
+        }
+
+        existingResume.getEducationList().clear();
+        if (dto.getEducationList() != null) {
+            dto.getEducationList().forEach(eduDto -> {
+                Education edu = new Education();
+                edu.setDegree(eduDto.getDegree());
+                edu.setInstitution(eduDto.getInstitution());
+                edu.setLocation(eduDto.getLocation());
+                edu.setYear(eduDto.getYear());
+                edu.setGpa(eduDto.getGpa());
+                edu.setResume(existingResume);
+                existingResume.getEducationList().add(edu);
+            });
+        }
+
+        existingResume.getCertifications().clear();
+        if (dto.getCertifications() != null) {
+            dto.getCertifications().forEach(certDto -> {
+                Certification cert = new Certification();
+                cert.setName(certDto.getName());
+                cert.setResume(existingResume);
+                existingResume.getCertifications().add(cert);
+            });
+        }
+
+        existingResume.getSkills().clear();
+        if (dto.getSkills() != null) {
+            dto.getSkills().forEach(skillDto -> {
+                if (skillDto.getName() != null && !skillDto.getName().isEmpty()) {
+                    Skill sk = new Skill();
+                    sk.setName(skillDto.getName());
+                    sk.setResume(existingResume);
+                    existingResume.getSkills().add(sk);
+                }
+            });
+        }
+
+        // ✅ Update User if needed
+        if (dto.getUserId() != null) {
+            Optional<User> opt = userrepo.findById(dto.getUserId());
+            opt.ifPresent(existingResume::setUser);
+        }
+
+        // ✅ Save changes
+        resumeRepository.save(existingResume);
+    }
+
 
     // --------------------------
     // Fetch all resumes for a user (minimal info for MyResumes.jsx)
@@ -263,4 +378,13 @@ public class ResumeService {
         }
         return list;
     }
+
+
+
+	public String deleteResume(Long resumeId) {
+	    Resume rs = resumeRepository.findById(resumeId).get();
+	    resumeRepository.delete(rs);
+		return "resume deleted successfully";
+	    
+	}
 }
