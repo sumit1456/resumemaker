@@ -1,7 +1,10 @@
 package com.app.resumemaker.controller;
 
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,10 +41,17 @@ public class UserController {
 
     // Simple sign-up (creates a new user record)
     @PostMapping("/signup")
-    public ResponseEntity<String> registerUser(@RequestBody SignupRequestDto dto) {
-        authService.registerUser(dto);          // pass the DTO you received
-        return ResponseEntity.ok("Registered Successfully");
+    public ResponseEntity<?> registerUser(@RequestBody SignupRequestDto dto) {
+        try {
+            authService.registerUser(dto);
+            return ResponseEntity.ok(Map.of("message", "Registered Successfully"));
+        } catch (Exception e) {
+            e.printStackTrace(); // shows exact error in your Spring console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Map.of("message", e.getMessage()));
+        }
     }
+
 
     
     @PostMapping("/login")

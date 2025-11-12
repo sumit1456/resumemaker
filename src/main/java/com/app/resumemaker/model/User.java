@@ -27,6 +27,24 @@ public class User {
 	private String username;
 	private String email;
 	
+	
+	private boolean verified = false;
+	
+	 public boolean isVerified() {
+		return verified;
+	}
+
+	public void setVerified(boolean verified) {
+		this.verified = verified;
+	}
+
+	public List<Resume> getResumes() {
+		return resumes;
+	}
+
+	public void setResumes(List<Resume> resumes) {
+		this.resumes = resumes;
+	}
 	 @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	 private List<Resume> resumes;
 
@@ -60,4 +78,5 @@ public class User {
 	}
 	private String password;
 
+	
 }

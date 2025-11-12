@@ -2,6 +2,7 @@ package com.app.resumemaker.service;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,8 +15,9 @@ import com.app.resumemaker.exception.InvalidCredentials;
 import com.app.resumemaker.exception.UserExists;
 import com.app.resumemaker.exception.UserNotFound;
 import com.app.resumemaker.model.User;
+import com.app.resumemaker.model.VerificationToken;
 import com.app.resumemaker.respository.UserRepository;
-
+import com.app.resumemaker.respository.VerificationRepository;
 // ✅ Google API imports
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -31,6 +33,14 @@ public class AuthService {
 
     @Autowired
     private PasswordEncoder passEncoder;
+    
+    
+    @Autowired
+    private VerificationRepository vr;
+    
+    
+    @Autowired
+    private BrevoService brevoService;
 
     // ✅ Manual registration
     public SignupResponceDto registerUser(SignupRequestDto user2) {
@@ -44,6 +54,15 @@ public class AuthService {
         user.setEmail(user2.getEmail());
 
         userrepo.save(user);
+        
+        String token = UUID.randomUUID().toString();
+        VerificationToken verificationToken = new VerificationToken(user, token);
+        vr.save(verificationToken);
+        
+        brevoService.sendVerificationEmail(user.getEmail(), token);
+        
+        
+        
         return new SignupResponceDto("Registration successful", user.getId());
     }
 
