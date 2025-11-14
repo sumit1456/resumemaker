@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,7 +46,7 @@ public class User {
 	public void setResumes(List<Resume> resumes) {
 		this.resumes = resumes;
 	}
-	 @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	 @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	 private List<Resume> resumes;
 
 	public User() {

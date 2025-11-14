@@ -36,6 +36,7 @@ public class UserController {
     @GetMapping
     ("/ping")
     public String ping() {
+    	
         return "Server is running!";
     }
 
@@ -53,24 +54,26 @@ public class UserController {
     }
 
 
-    
     @PostMapping("/login")
-    public User loginRequest(@RequestBody LoginRequestDTO dto){
-    	
-    	return authService.authenticate(dto.getEmail(), dto.getPassword());
+    public ResponseEntity<Long> loginRequest(@RequestBody LoginRequestDTO dto) {
+        User user = authService.authenticate(dto.getEmail(), dto.getPassword());
+        return ResponseEntity.ok(user.getId()); // ✅ Return only userId
     }
-    
 
     @PostMapping("/google-login")
-    public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest request) {
-    	System.out.println("The request was made");
+    public ResponseEntity<Long> googleLogin(@RequestBody GoogleLoginRequest request) {
+        System.out.println("📩 Google login request received");
+
         try {
             User user = authService.loginWithGoogle(request.getToken());
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(user.getId()); // ✅ Return only userId
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Google login failed: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
         }
     }
+
+
 
       
 }

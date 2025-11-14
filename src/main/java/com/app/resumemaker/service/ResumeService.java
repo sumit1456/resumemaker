@@ -29,6 +29,10 @@ public class ResumeService {
     public void saveResume(ResumeDTO dto) {
         if (dto == null || dto.getDetails() == null || dto.getContact() == null) return;
 
+        System.out.println("Inside save method printing the dtio");
+        System.out.println(dto);
+        System.out.println(dto.getUserId());
+        
         Resume resume = new Resume();
         resume.setTemplateId(dto.getTemplateId());
         resume.setTitle(dto.getTitle());

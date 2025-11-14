@@ -29,6 +29,7 @@ public class ResumeController {
 	
 	@PostMapping("saveall")
 	public ResponseEntity<String> saveAll(@RequestBody ResumeDTO dto) {
+		System.out.println(dto);
 		System.out.println("Request was made");
 	    rs.saveResume(dto);
 	    return ResponseEntity.ok("Resume saved successfully");
@@ -36,6 +37,7 @@ public class ResumeController {
 	
 	@PutMapping("/update/{resumeId}")
 	public ResponseEntity<String> updateAll(@RequestBody ResumeDTO dto, @PathVariable Long resumeId) {
+		System.out.println("resume update request has been made");
 	    try {
 	        rs.updateResume(resumeId, dto);
 	        return ResponseEntity.ok("Resume updated successfully");

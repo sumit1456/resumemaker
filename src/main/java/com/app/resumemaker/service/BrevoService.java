@@ -11,8 +11,8 @@ import com.google.api.client.util.Value;
 @Service
 public class BrevoService {
 
-//    @Value("${brevo.api.key}")
-    private String apiKey = "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";
+    @Value("${brevo.api.key}")
+    private String apiKey; 
 
     private final WebClient webClient = WebClient.create("https://api.brevo.com/v3");
 
@@ -80,4 +80,12 @@ public class BrevoService {
             .doOnError(err -> System.err.println("❌ Brevo Error: " + err.getMessage()))
             .subscribe();
     }
+    
+    
+    
+    
+    
+    
+    
+    
 }

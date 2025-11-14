@@ -54,9 +54,9 @@ public class ResumemakerApplication {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(
-                            "http://localhost:5173",                          // local dev
+                            "http://localhost:5173",                           // local dev
                             "https://resumemaker-frontend-master.onrender.com", // deployed frontend
-                            "https://resumemaker-frontend.vercel.app"         // optional
+                            "https://resumemaker-frontend.vercel.app"          // optional
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
@@ -64,4 +64,5 @@ public class ResumemakerApplication {
             }
         };
     }
+
 }
