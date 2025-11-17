@@ -1,5 +1,7 @@
 package com.app.resumemaker.exception;
 
+import java.util.Map;
+
 import org.hibernate.exception.JDBCConnectionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,5 +32,30 @@ public class GlobalExceptionHandler {
 					.body("Problem in connecting database");
 		 
 	 }
+	 
+	 @ExceptionHandler(Exception.class)
+	 public void catchAll(Exception e) {
+	     e.printStackTrace();
+	 }
+	 
+	 @ExceptionHandler(GroqApiException.class)
+	 public ResponseEntity<?> handleGroqExceptions(GroqApiException ex) {
+
+	     if ("rate_limit_exceeded".equals(ex.getCode())) {
+	         return ResponseEntity.status(429)
+	                 .body(Map.of(
+	                     "error", "Groq rate limit reached. Try again later.",
+	                     "details", ex.getMessage()
+	                 ));
+	     }
+
+	     return ResponseEntity.status(400)
+	             .body(Map.of(
+	                 "error", "Groq API Error",
+	                 "message", ex.getMessage()
+	             ));
+	 }
+
+
 	 
 }
