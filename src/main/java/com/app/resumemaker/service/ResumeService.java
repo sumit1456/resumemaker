@@ -1,5 +1,6 @@
 package com.app.resumemaker.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -8,11 +9,16 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.app.resumemaker.dto.*;
 import com.app.resumemaker.model.*;
 import com.app.resumemaker.respository.ResumeRepository;
 import com.app.resumemaker.respository.UserRepository;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+
 
 @Service
 public class ResumeService {
@@ -391,4 +397,13 @@ public class ResumeService {
 		return "resume deleted successfully";
 	    
 	}
+	
+	  public String extractTextFromPdf(MultipartFile file) throws IOException {
+	        try (PDDocument document = PDDocument.load(file.getInputStream())) {
+	            PDFTextStripper pdfStripper = new PDFTextStripper();
+	            return pdfStripper.getText(document);
+	        }
+	    }
+
+
 }

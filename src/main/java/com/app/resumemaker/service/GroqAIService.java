@@ -52,9 +52,9 @@ public class GroqAIService {
             String aiPrompt = """
                 You are a resume analysis AI.
 
-                Analyze the candidate's resume compared to the job description.
+                Analyze the candidate's resume compared to the job description if given otherwise just analyze in detail. Give multiple points where necessary.  Inside verdict be very strict give ratings
 
-                Return ONLY valid JSON. Do NOT include backticks, markdown, commentary, or text outside JSON.
+                and write in detail. Return ONLY valid JSON. Do NOT include backticks, markdown, commentary, or text outside JSON.
 
                 JSON STRUCTURE MUST BE EXACTLY:
 
@@ -359,6 +359,112 @@ public class GroqAIService {
             return diff;
         }
     }
+
+    
+    
+    public String generateResumeFromPdf(String normalizedText) {
+        try {
+            String aiPrompt = """
+                You are a resume-parsing AI.
+
+                Given the resume text below, extract the resume into JSON with the following exact structure:
+
+                {
+                  "resumeDetails": {
+                    "name": "",
+                    "title": "",
+                    "contact": {
+                      "phone": "",
+                      "email": "",
+                      "linkedin": "",
+                      "github": "",
+                      "location": ""
+                    },
+                    "summary": ""
+                  },
+                  "skills": [
+                    "Programming Languages - ...",
+                    "Databases - ...",
+                    "Frameworks & Libraries - ...",
+                    "Tools & Platforms - ...",
+                    "Cloud & Deployment - ...",
+                    "Soft Skills - ..."
+                  ],
+                  "experiences": [
+                    {
+                      "title": "",
+                      "company": "",
+                      "location": "",
+                      "startDate": "",
+                      "endDate": "",
+                      "description": [""]
+                    }
+                  ],
+                  "projects": [
+                    {
+                      "title": "",
+                      "description": [""]
+                    }
+                  ],
+                  "educationList": [
+                    {
+                      "degree": "",
+                      "cgpa": "",
+                      "university": "",
+                      "startDate": "",
+                      "endDate": ""
+                    }
+                  ],
+                  "certifications": [
+                    {
+                      "title": "",
+                      "issuer": "",
+                      "date": ""
+                    }
+                  ]
+                }
+
+                - If any section is missing in the resume text, generate a reasonable default or leave blank.
+                - Group skills into these six categories exactly as:
+                  Programming Languages, Databases, Frameworks & Libraries, Tools & Platforms, Cloud & Deployment, Soft Skills.
+                - Return ONLY valid JSON. Do NOT include markdown, commentary, or any text outside JSON.
+
+                Resume Text:
+                %s
+                """.formatted(normalizedText);
+
+            JSONObject body = new JSONObject();
+            body.put("model", model);
+
+            JSONArray messages = new JSONArray();
+            messages.put(new JSONObject()
+                    .put("role", "system")
+                    .put("content", "You must return only JSON. Never return text outside JSON."));
+            messages.put(new JSONObject()
+                    .put("role", "user")
+                    .put("content", aiPrompt));
+
+            body.put("messages", messages);
+            body.put("temperature", 0.2);
+            body.put("max_tokens", 1500);
+
+            Mono<String> responseMono = webClient.post()
+                    .uri(apiUrl)
+                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Content-Type", "application/json")
+                    .bodyValue(body.toString())
+                    .retrieve()
+                    .bodyToMono(String.class);
+
+            String response = responseMono.block();
+            return extractContent(response); // raw JSON string
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{ \"error\": \"AI Resume generation failed: " + e.getMessage().replace("\"", "'") + "\" }";
+        }
+    }
+
 
 
 }

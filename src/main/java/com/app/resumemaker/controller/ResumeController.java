@@ -1,6 +1,9 @@
 package com.app.resumemaker.controller;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,13 +14,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.app.resumemaker.dto.BsaicInfoDTO;
 import com.app.resumemaker.dto.ResumeDTO;
 import com.app.resumemaker.model.BasicInfoEntity;
 import com.app.resumemaker.model.Resume;
+import com.app.resumemaker.service.GroqAIService;
 import com.app.resumemaker.service.ResumeService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class ResumeController {
@@ -25,6 +32,9 @@ public class ResumeController {
 	
 	@Autowired
 	ResumeService rs;
+	
+	@Autowired
+	GroqAIService gs;
 
 	
 	@PostMapping("saveall")
@@ -78,6 +88,37 @@ public class ResumeController {
         String res = rs.deleteResume(resumeId);
         return ResponseEntity.ok(res);
     }
+    
+    
+    
+    @PostMapping("/uploadResume")
+    public ResponseEntity<?> uploadResume(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("message", "File is empty")); // JSON body
+        }
+
+        try {
+            String text = rs.extractTextFromPdf(file);
+            String normalizedText = text.replaceAll("\\s+", " ").trim();
+
+            // Get AI JSON as string
+            String aiJson = gs.generateResumeFromPdf(normalizedText);
+            System.out.println(aiJson);
+            // Return JSON body directly
+            return ResponseEntity.ok()
+                    .body(new ObjectMapper().readValue(aiJson, Map.class)); 
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Return JSON body with error message
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "AI Resume generation failed: " + e.getMessage()));
+        }
+    }
+
+
 
    
 
