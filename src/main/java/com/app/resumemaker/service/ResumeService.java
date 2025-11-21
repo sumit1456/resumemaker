@@ -1,7 +1,11 @@
 package com.app.resumemaker.service;
 
 import java.io.IOException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +39,6 @@ public class ResumeService {
     public void saveResume(ResumeDTO dto) {
         if (dto == null || dto.getDetails() == null || dto.getContact() == null) return;
 
-        System.out.println("Inside save method printing the dtio");
         System.out.println(dto);
         System.out.println(dto.getUserId());
         
@@ -62,17 +65,34 @@ public class ResumeService {
         resume.setExperienceSummary(dto.getDetails().getSummary());
 
         // Map Experiences
+       
+        
+      
+     // --- Map Experiences like Projects ---
         if (dto.getExperiences() != null) {
             dto.getExperiences().forEach(expDto -> {
                 Experience exp = new Experience();
                 exp.setPosition(expDto.getPosition());
                 exp.setCompany(expDto.getCompany());
-                exp.setDuration(expDto.getDuration());
                 exp.setLocation(expDto.getLocation());
-                resume.getExperiences().add(exp);
+                exp.setDuration(expDto.getDuration());
+
+                // Convert List<String> to a single String for storage (like projects.description)
+                if (expDto.getAchievements() != null && !expDto.getAchievements().isEmpty()) {
+                    exp.setAchievements(String.join("\n", expDto.getAchievements()));
+                } else {
+                    exp.setAchievements(""); // empty string if no achievements
+                }
+
                 exp.setResume(resume);
+                resume.getExperiences().add(exp);
             });
         }
+
+        
+       
+
+
 
         // Map Projects
         if (dto.getProjects() != null) {
@@ -129,6 +149,7 @@ public class ResumeService {
 
         // Save Resume
         resumeRepository.save(resume);
+    
     }
     
     
@@ -292,6 +313,7 @@ public class ResumeService {
         dto.setEducationList(mapEducation(resume.getEducationList()));
         dto.setCertifications(mapCertifications(resume.getCertifications()));
         dto.setSkills(mapSkills(resume.getSkills()));
+    
 
         return dto;
     }
@@ -326,13 +348,22 @@ public class ResumeService {
                 ExperienceDTO dto = new ExperienceDTO();
                 dto.setPosition(e.getPosition());
                 dto.setCompany(e.getCompany());
-                dto.setDuration(e.getDuration());
                 dto.setLocation(e.getLocation());
+                dto.setDuration(e.getDuration());
+
+                // map achievements as a list
+                dto.setAchievements(
+                    e.getAchievements() != null 
+                        ? Arrays.asList(e.getAchievements().split("\\r?\\n")) 
+                        : new ArrayList<>()
+                );
+
                 list.add(dto);
             });
         }
         return list;
     }
+
 
     private List<ProjectDTO> mapProjects(Set<ProjectDetails> projects) {
         List<ProjectDTO> list = new ArrayList<>();

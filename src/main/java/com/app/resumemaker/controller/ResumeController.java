@@ -1,6 +1,7 @@
 package com.app.resumemaker.controller;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,10 @@ import com.app.resumemaker.model.BasicInfoEntity;
 import com.app.resumemaker.model.Resume;
 import com.app.resumemaker.service.GroqAIService;
 import com.app.resumemaker.service.ResumeService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.swagger.v3.oas.models.Paths;
 
 @RestController
 public class ResumeController {
@@ -39,6 +43,14 @@ public class ResumeController {
 	
 	@PostMapping("saveall")
 	public ResponseEntity<String> saveAll(@RequestBody ResumeDTO dto) {
+		System.out.println("===========================================");
+		
+		System.out.println("Object which is received from frontend");
+		System.out.println(dto);
+		
+		System.out.println("===========================================");
+		
+		
 		System.out.println(dto);
 		System.out.println("Request was made");
 	    rs.saveResume(dto);
@@ -80,10 +92,16 @@ public class ResumeController {
         if (resume == null) {
             return ResponseEntity.notFound().build();
         }
+        
+        System.out.println("======================================");
+        System.out.println("THis what we return when fetched a single resume");
+        System.out.println(resume);
+        
+        System.out.println("=========================================");
         return ResponseEntity.ok(resume);
     }
     
-    @DeleteMapping("/my-resumes/{resumeId}")
+    @DeleteMapping("/my-resumes-delete-resume/{resumeId}")
     public ResponseEntity<String> deleteUser(@PathVariable Long resumeId) {
         String res = rs.deleteResume(resumeId);
         return ResponseEntity.ok(res);
@@ -96,27 +114,41 @@ public class ResumeController {
         if (file.isEmpty()) {
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("message", "File is empty")); // JSON body
+                    .body(Map.of("message", "File is empty"));
         }
 
         try {
+            // 1️⃣ Extract text from PDF
             String text = rs.extractTextFromPdf(file);
             String normalizedText = text.replaceAll("\\s+", " ").trim();
 
-            // Get AI JSON as string
+            // 2️⃣ Generate AI JSON
             String aiJson = gs.generateResumeFromPdf(normalizedText);
-            System.out.println(aiJson);
-            // Return JSON body directly
-            return ResponseEntity.ok()
-                    .body(new ObjectMapper().readValue(aiJson, Map.class)); 
+
+         
+            // 4️⃣ Parse AI JSON safely
+            Map<String, Object> jsonResponse;
+            try {
+                jsonResponse = new ObjectMapper().readValue(aiJson, Map.class);
+            } catch (JsonProcessingException e) {
+                System.err.println("Failed to parse AI JSON. Raw content:");
+                System.err.println(aiJson);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("error", "AI returned invalid or truncated JSON."));
+            }
+            
+            System.out.println(jsonResponse);
+
+            // 5️⃣ Return parsed JSON to frontend
+            return ResponseEntity.ok().body(jsonResponse);
 
         } catch (Exception e) {
             e.printStackTrace();
-            // Return JSON body with error message
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "AI Resume generation failed: " + e.getMessage()));
         }
     }
+
 
 
 

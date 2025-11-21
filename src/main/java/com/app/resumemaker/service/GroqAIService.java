@@ -26,6 +26,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -33,13 +34,13 @@ public class GroqAIService {
 
     private final WebClient webClient;
 
-    @Value("${groq.api.key}")
+    @Value("${groq.api.key2}")
     private String apiKey;
 
     @Value("${groq.api.url}")
     private String apiUrl;
 
-    @Value("${groq.model}")
+    @Value("${groq.model2}")
     private String model;
 
     public GroqAIService(WebClient.Builder webClientBuilder) {
@@ -124,44 +125,6 @@ public class GroqAIService {
         }
     }
 
-    
-//    public String analyze(String jobDescription, String resumeJson) {
-//        try {
-//            // Build request body
-//            JSONObject body = new JSONObject();
-//            body.put("model", model);
-//
-//            JSONArray messages = new JSONArray();
-//            messages.put(new JSONObject()
-//                    .put("role", "system")
-//                    .put("content", "You are a resume analysis expert. Compare resume to job description."));
-//            messages.put(new JSONObject()
-//                    .put("role", "user")
-//                    .put("content", "Job Description:\n" + jobDescription + "\n\nResume JSON:\n" + resumeJson));
-//
-//            body.put("messages", messages);
-//            body.put("temperature", 0.2);
-//            body.put("max_tokens", 800);
-//
-//            // Send request
-//            Mono<String> responseMono = webClient.post()
-//                    .uri(apiUrl)
-//                    .header("Authorization", "Bearer " + apiKey)
-//                    .header("Content-Type", "application/json")
-//                    .bodyValue(body.toString())
-//                    .retrieve()
-//                    .bodyToMono(String.class);
-//
-//            String response = responseMono.block(); // Blocking call
-//            return extractContent(response);
-//
-//        } catch (WebClientResponseException e) {
-//            return "❌ Groq API Error: " + e.getResponseBodyAsString();
-//        } catch (Exception e) {
-//            return "❌ Groq API Error: " + e.getMessage();
-//        }
-//    }
-
 
     private String extractContent(String responseJson) {
         try {
@@ -184,99 +147,192 @@ public class GroqAIService {
     // ---------------------------------------------------------------------
     // ENHANCE RESUME (HttpClient)
     // ---------------------------------------------------------------------
-    public ResumeDTO enhanceResume(ResumeDTO resumeDTO) {
+//    public ResumeDTO enhanceResume(ResumeDTO resumeDTO) {
+//        try {
+//            ObjectMapper mapper = new ObjectMapper();
+//            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//
+//            // Convert ResumeDTO → JSON string
+//            String resumeJson = mapper.writeValueAsString(resumeDTO);
+//
+//            // System prompt
+//            String systemPrompt = """
+//                You are an advanced ATS resume optimization expert.
+//
+//                STRICT RULES:
+//                - Return ONLY valid JSON.
+//                - Start with '{' and end with '}'.
+//                - Do NOT add/remove/rename fields.
+//                - Do NOT alter array structure.
+//                - Do NOT add commentary or explanation.
+//                Improve ONLY text fields.
+//                """;
+//
+//            // User prompt
+//            String userPrompt = "Enhance this Resume JSON:\n\n" + resumeJson;
+//
+//            // Build request body
+//            JSONObject req = new JSONObject()
+//                .put("model", "groq/compound")
+//                .put("messages", new JSONArray()
+//                    .put(new JSONObject().put("role", "system").put("content", systemPrompt))
+//                    .put(new JSONObject().put("role", "user").put("content", userPrompt)));
+//
+//            // HTTP client config
+//            RequestConfig config = RequestConfig.custom()
+//                .setConnectionRequestTimeout(Timeout.ofSeconds(60))
+//                .setResponseTimeout(Timeout.ofSeconds(60))
+//                .build();
+//
+//            try (CloseableHttpClient client = HttpClients.custom()
+//                    .setDefaultRequestConfig(config)
+//                    .build()) {
+//
+//                HttpPost post = new HttpPost("https://api.groq.com/openai/v1/chat/completions");
+//                post.setHeader("Authorization", "Bearer " + apiKey);
+//                post.setHeader("Content-Type", "application/json");
+//                post.setEntity(EntityBuilder.create()
+//                        .setText(req.toString())
+//                        .setContentType(org.apache.hc.core5.http.ContentType.APPLICATION_JSON)
+//                        .build());
+//
+//                ClassicHttpResponse response = client.execute(post);
+//                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+//
+//                System.out.println("RAW AI RESPONSE:");
+//                System.out.println(responseBody);
+//
+//                // Extract AI "content"
+//                JSONObject jsonResponse = new JSONObject(responseBody);
+//                
+//                if (jsonResponse.has("error")) {
+//                    JSONObject err = jsonResponse.getJSONObject("error");
+//                    String message = err.optString("message", "Unknown AI error");
+//                    String code = err.optString("code", "unknown_error");
+//
+//                    throw new GroqApiException(
+//                            err.optString("message"),
+//                            err.optString("code"),
+//                            err.optString("type")
+//                        );
+//                }
+//
+//                String aiContent = jsonResponse
+//                        .getJSONArray("choices")
+//                        .getJSONObject(0)
+//                        .getJSONObject("message")
+//                        .getString("content");
+//
+//                // Clean response to pure JSON
+//                String cleaned = extractPureJson(aiContent);
+//               
+//
+//                // Convert JSON → ResumeDTO
+//                return mapper.readValue(cleaned, ResumeDTO.class);
+//            }
+//
+//        }
+//        catch(GroqApiException gae) {
+//        	throw gae;
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//            throw new RuntimeException("AI parsing failed: " + e.getMessage());
+//        }
+//    }
+
+    
+    
+    public String enhanceResumeSimple(ResumeDTO resumeDTO) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-            // Convert ResumeDTO → JSON string
             String resumeJson = mapper.writeValueAsString(resumeDTO);
 
-            // System prompt
-            String systemPrompt = """
-                You are an advanced ATS resume optimization expert.
+            String aiPrompt = """
+                You are an advanced ATS resume enhancement AI.
 
-                STRICT RULES:
+                Enhance the following resume JSON. STRICT RULES:
                 - Return ONLY valid JSON.
-                - Start with '{' and end with '}'.
-                - Do NOT add/remove/rename fields.
-                - Do NOT alter array structure.
-                - Do NOT add commentary or explanation.
-                Improve ONLY text fields.
-                """;
+                - Do NOT change field names, structure, or array hierarchy.
+                - Include only these top-level fields: resumeDetails, skills, experiences, projects.
+                - If a field is missing or empty, leave it as null or empty array.
+                - Do NOT add commentary or text outside JSON.
 
-            // User prompt
-            String userPrompt = "Enhance this Resume JSON:\n\n" + resumeJson;
+                Use this as the exact structure reference (your output must match):
 
-            // Build request body
-            JSONObject req = new JSONObject()
-                .put("model", "groq/compound")
-                .put("messages", new JSONArray()
-                    .put(new JSONObject().put("role", "system").put("content", systemPrompt))
-                    .put(new JSONObject().put("role", "user").put("content", userPrompt)));
-
-            // HTTP client config
-            RequestConfig config = RequestConfig.custom()
-                .setConnectionRequestTimeout(Timeout.ofSeconds(60))
-                .setResponseTimeout(Timeout.ofSeconds(60))
-                .build();
-
-            try (CloseableHttpClient client = HttpClients.custom()
-                    .setDefaultRequestConfig(config)
-                    .build()) {
-
-                HttpPost post = new HttpPost("https://api.groq.com/openai/v1/chat/completions");
-                post.setHeader("Authorization", "Bearer " + apiKey);
-                post.setHeader("Content-Type", "application/json");
-                post.setEntity(EntityBuilder.create()
-                        .setText(req.toString())
-                        .setContentType(org.apache.hc.core5.http.ContentType.APPLICATION_JSON)
-                        .build());
-
-                ClassicHttpResponse response = client.execute(post);
-                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-
-                System.out.println("RAW AI RESPONSE:");
-                System.out.println(responseBody);
-
-                // Extract AI "content"
-                JSONObject jsonResponse = new JSONObject(responseBody);
-                
-                if (jsonResponse.has("error")) {
-                    JSONObject err = jsonResponse.getJSONObject("error");
-                    String message = err.optString("message", "Unknown AI error");
-                    String code = err.optString("code", "unknown_error");
-
-                    throw new GroqApiException(
-                            err.optString("message"),
-                            err.optString("code"),
-                            err.optString("type")
-                        );
+                {
+                  "resumeDetails": {
+                    "name": "",
+                    "title": "",
+                    "contact": {
+                      "phone": "",
+                      "email": "",
+                      "linkedin": "",
+                      "github": "",
+                      "location": ""
+                    },
+                    "summary": ""
+                  },
+                  "skills": [
+                    "Programming Languages - ...",
+                    "Databases - ...",
+                    "Frameworks & Libraries - ...",
+                    "Tools & Platforms - ...",
+                    "Cloud & Deployment - ...",
+                    "Soft Skills - ..."
+                  ],
+                  "experiences": [
+                    {
+                      "title": "",
+                      "company": "",
+                      "location": "",
+                      "startDate": "",
+                      "endDate": "",
+                      "description": [""]
+                    }
+                  ],
+                  "projects": [
+                    {
+                      "name": "",
+                      "description": [""]
+                    }
+                  ]
                 }
 
-                String aiContent = jsonResponse
-                        .getJSONArray("choices")
-                        .getJSONObject(0)
-                        .getJSONObject("message")
-                        .getString("content");
+                Enhance this resume JSON:
+                %s
+                """.formatted(resumeJson);
 
-                // Clean response to pure JSON
-                String cleaned = extractPureJson(aiContent);
-               
+            JSONObject body = new JSONObject();
+            body.put("model", "groq/compound");
+            body.put("temperature", 0.2);
+            body.put("max_tokens", 3000);
 
-                // Convert JSON → ResumeDTO
-                return mapper.readValue(cleaned, ResumeDTO.class);
-            }
+            JSONArray messages = new JSONArray();
+            messages.put(new JSONObject().put("role", "system").put("content", "Return only valid JSON."));
+            messages.put(new JSONObject().put("role", "user").put("content", aiPrompt));
+            body.put("messages", messages);
 
-        }
-        catch(GroqApiException gae) {
-        	throw gae;
-        }
-        catch (Exception e) {
+            Mono<String> responseMono = webClient.post()
+                    .uri(apiUrl)
+                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Content-Type", "application/json")
+                    .bodyValue(body.toString())
+                    .retrieve()
+                    .bodyToMono(String.class);
+
+            String response = responseMono.block();
+            System.out.println("Enhanced Resume JSON:\n" + response);
+
+            return response;
+
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("AI parsing failed: " + e.getMessage());
+            return "{ \"error\": \"AI Resume enhancement failed: " + e.getMessage().replace("\"", "'") + "\" }";
         }
     }
+
 
     private String extractPureJson(String text) {
         int start = text.indexOf('{');
@@ -402,7 +458,7 @@ public class GroqAIService {
                   ],
                   "projects": [
                     {
-                      "title": "",
+                      "name": "",
                       "description": [""]
                     }
                   ],
@@ -446,7 +502,7 @@ public class GroqAIService {
 
             body.put("messages", messages);
             body.put("temperature", 0.2);
-            body.put("max_tokens", 1500);
+            body.put("max_tokens", 3000);
 
             Mono<String> responseMono = webClient.post()
                     .uri(apiUrl)
@@ -457,7 +513,8 @@ public class GroqAIService {
                     .bodyToMono(String.class);
 
             String response = responseMono.block();
-            return extractContent(response); // raw JSON string
+            System.out.println(response);
+            return response; // raw JSON string
 
         } catch (Exception e) {
             e.printStackTrace();

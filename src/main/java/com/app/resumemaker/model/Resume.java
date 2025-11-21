@@ -8,7 +8,8 @@ import jakarta.persistence.*;
 @Table(name = "resumes")
 public class Resume {
 
-    @Id
+   
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

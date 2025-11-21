@@ -1,6 +1,5 @@
 package com.app.resumemaker.model;
 
-
 import jakarta.persistence.*;
 
 @Entity
@@ -16,16 +15,16 @@ public class Experience {
     private String location;
     private String duration;
 
-    @Column(columnDefinition = "TEXT") // multiple achievements can be stored as JSON or newline-separated
+    @Column(columnDefinition = "TEXT") // multiple achievements stored as newline-separated text
     private String achievements;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resume_id", nullable = false)
     private Resume resume;
 
-    // Constructors
+    // ---------- Constructors ----------
     public Experience() {}
-    
+
     public Experience(String position, String company, String location, String duration, String achievements, Resume resume) {
         this.position = position;
         this.company = company;
@@ -35,7 +34,7 @@ public class Experience {
         this.resume = resume;
     }
 
-    // Getters & Setters
+    // ---------- Getters & Setters ----------
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -57,6 +56,15 @@ public class Experience {
     public Resume getResume() { return resume; }
     public void setResume(Resume resume) { this.resume = resume; }
 
+    // ---------- Helper Methods ----------
+    /**
+     * Returns achievements as a single string.
+     * Frontend can split by newline if needed.
+     */
+    public String getAchievementsAsText() {
+        return achievements != null ? achievements : "";
+    }
+
     @Override
     public String toString() {
         return "Experience{" +
@@ -65,6 +73,8 @@ public class Experience {
                 ", company='" + company + '\'' +
                 ", location='" + location + '\'' +
                 ", duration='" + duration + '\'' +
+                ", achievements='" + achievements + '\'' +
+                ", resumeId=" + (resume != null ? resume.getId() : null) +
                 '}';
     }
 }
