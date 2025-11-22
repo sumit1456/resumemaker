@@ -45,7 +45,11 @@ public class UserController {
     public ResponseEntity<?> registerUser(@RequestBody SignupRequestDto dto) {
         try {
             authService.registerUser(dto);
-            return ResponseEntity.ok(Map.of("message", "Registered Successfully"));
+            return ResponseEntity.ok(Map.of(
+            	    "success", true,
+            	    "message", "Registered Successfully"
+            	));
+
         } catch (Exception e) {
             e.printStackTrace(); // shows exact error in your Spring console
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

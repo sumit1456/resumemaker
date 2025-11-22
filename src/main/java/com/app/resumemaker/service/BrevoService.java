@@ -1,22 +1,30 @@
 package com.app.resumemaker.service;
 
 import java.util.List;
+
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.google.api.client.util.Value;
+import org.springframework.beans.factory.annotation.Value;
+
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class BrevoService {
 
     @Value("${brevo.api.key}")
     private String apiKey; 
+    
+    @Value("${groq.api.key2}")
+    private String groqKey;
 
     private final WebClient webClient = WebClient.create("https://api.brevo.com/v3");
 
     public void sendVerificationEmail(String toEmail, String token) {
+    	System.out.println(apiKey);
         System.out.println("📨 BrevoService.sendVerificationEmail() called for: " + toEmail);
 
         String verifyLink = "http://localhost:5173/verify?token=" + token;
@@ -80,6 +88,12 @@ public class BrevoService {
             .doOnError(err -> System.err.println("❌ Brevo Error: " + err.getMessage()))
             .subscribe();
     }
+    
+    @PostConstruct
+    public void testKey() {
+        
+    }
+
     
     
     

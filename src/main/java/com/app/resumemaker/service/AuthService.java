@@ -44,9 +44,8 @@ public class AuthService {
 
     // ✅ Manual registration
     public SignupResponceDto registerUser(SignupRequestDto user2) {
-        if (userrepo.existsByEmail(user2.getEmail())) {
-            throw new UserExists();
-        }
+    	
+   
 
         User user = new User();
         user.setUsername(user2.getName());

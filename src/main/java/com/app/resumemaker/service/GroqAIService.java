@@ -323,15 +323,23 @@ public class GroqAIService {
                     .bodyToMono(String.class);
 
             String response = responseMono.block();
-            System.out.println("Enhanced Resume JSON:\n" + response);
+           
+            JSONObject jsonResponse = new JSONObject(response);
+            JSONArray choices = jsonResponse.getJSONArray("choices");
+            JSONObject firstChoice = choices.getJSONObject(0);
+            JSONObject message = firstChoice.getJSONObject("message");
+            String enhancedResumeJson = message.getString("content");
 
-            return response;
+            System.out.println("Only the enhanced resume JSON:\n" + enhancedResumeJson);
+            return enhancedResumeJson;
+
 
         } catch (Exception e) {
             e.printStackTrace();
             return "{ \"error\": \"AI Resume enhancement failed: " + e.getMessage().replace("\"", "'") + "\" }";
         }
     }
+
 
 
     private String extractPureJson(String text) {
