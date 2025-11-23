@@ -250,59 +250,71 @@ public class GroqAIService {
             String resumeJson = mapper.writeValueAsString(resumeDTO);
 
             String aiPrompt = """
-                You are an advanced ATS resume enhancement AI.
+            		You are a highly advanced AI specialized in professional resume enhancement. 
 
-                Enhance the following resume JSON. STRICT RULES:
-                - Return ONLY valid JSON.
-                - Do NOT change field names, structure, or array hierarchy.
-                - Include only these top-level fields: resumeDetails, skills, experiences, projects.
-                - If a field is missing or empty, leave it as null or empty array.
-                - Do NOT add commentary or text outside JSON.
+            		GOAL:
+            		- Transform the provided resume JSON into a polished, industry-ready, ATS-friendly resume.
 
-                Use this as the exact structure reference (your output must match):
+            		STRICT RULES:
+            		1. Return **ONLY valid JSON**. Do NOT include any explanations, headings, comments, or markdown.
+            		2. Do NOT change field names, structure, or array hierarchy.
+            		3. Include only these top-level fields: resumeDetails, skills, experiences, projects.
+            		4. If a field is missing or empty, leave it as null or empty array.
+            		5. Do NOT include trailing commas.
+            		6. Escape all characters properly so JSON is parseable.
 
-                {
-                  "resumeDetails": {
-                    "name": "",
-                    "title": "",
-                    "contact": {
-                      "phone": "",
-                      "email": "",
-                      "linkedin": "",
-                      "github": "",
-                      "location": ""
-                    },
-                    "summary": ""
-                  },
-                  "skills": [
-                    "Programming Languages - ...",
-                    "Databases - ...",
-                    "Frameworks & Libraries - ...",
-                    "Tools & Platforms - ...",
-                    "Cloud & Deployment - ...",
-                    "Soft Skills - ..."
-                  ],
-                  "experiences": [
-                    {
-                      "title": "",
-                      "company": "",
-                      "location": "",
-                      "startDate": "",
-                      "endDate": "",
-                      "description": [""]
-                    }
-                  ],
-                  "projects": [
-                    {
-                      "name": "",
-                      "description": [""]
-                    }
-                  ]
-                }
+            		ENHANCEMENT GUIDELINES:
+            		- Make the summary professional, concise, and impactful.
+            		- Rewrite experiences and project descriptions with clear, results-oriented, measurable achievements.
+            		- Highlight relevant technologies and skills.
+            		- Organize skills logically, reflecting industry standards.
+            		- Ensure the resume is ATS-friendly and highly polished for top employers.
 
-                Enhance this resume JSON:
-                %s
-                """.formatted(resumeJson);
+            		Use this exact output structure (your output must match):
+
+            		{
+            		  "resumeDetails": {
+            		    "name": "",
+            		    "title": "",
+            		    "contact": {
+            		      "phone": "",
+            		      "email": "",
+            		      "linkedin": "",
+            		      "github": "",
+            		      "location": ""
+            		    },
+            		    "summary": ""
+            		  },
+            		  "skills": [
+            		    "Programming Languages - ...",
+            		    "Databases - ...",
+            		    "Frameworks & Libraries - ...",
+            		    "Tools & Platforms - ...",
+            		    "Cloud & Deployment - ...",
+            		    "Soft Skills - ..."
+            		  ],
+            		  "experiences": [
+            		    {
+            		      "title": "",
+            		      "company": "",
+            		      "location": "",
+            		      "startDate": "",
+            		      "endDate": "",
+            		      "description": [""]
+            		    }
+            		  ],
+            		  "projects": [
+            		    {
+            		      "name": "",
+            		      "description": [""]
+            		    }
+            		  ]
+            		}
+
+            		Enhance this resume JSON to be professional, polished, and industry-ready:
+            		%s
+            		""".formatted(resumeJson);
+
 
             JSONObject body = new JSONObject();
             body.put("model", "groq/compound");

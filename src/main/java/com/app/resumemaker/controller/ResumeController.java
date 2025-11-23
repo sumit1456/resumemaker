@@ -78,6 +78,7 @@ public class ResumeController {
     // --------------------------
     @GetMapping("/my-resumes/{userId}")
     public ResponseEntity<List<ResumeDTO>> getAllResumesByUser(@PathVariable Long userId) {
+    	System.out.println("Requested all resumes - ");
         List<ResumeDTO> resumes = rs.getAllResumesByUser(userId);
         return ResponseEntity.ok(resumes);
     }
