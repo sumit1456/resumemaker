@@ -45,7 +45,11 @@ public class AuthService {
     // ✅ Manual registration
     public SignupResponceDto registerUser(SignupRequestDto user2) {
     	
-   
+        Optional<User> userExists = userrepo.findByEmail(user2.getEmail());
+        
+        if(!userExists.isEmpty() && userExists.get().isVerified()) {
+        	throw new UserExists();
+        }
 
         User user = new User();
         user.setUsername(user2.getName());
@@ -53,6 +57,8 @@ public class AuthService {
         user.setEmail(user2.getEmail());
 
         userrepo.save(user);
+        
+       
         
         String token = UUID.randomUUID().toString();
         VerificationToken verificationToken = new VerificationToken(user, token);

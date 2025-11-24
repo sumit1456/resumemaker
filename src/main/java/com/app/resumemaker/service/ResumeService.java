@@ -36,8 +36,8 @@ public class ResumeService {
     // --------------------------
     // Save or Create Resume
     // --------------------------
-    public void saveResume(ResumeDTO dto) {
-        if (dto == null || dto.getDetails() == null || dto.getContact() == null) return;
+    public Long saveResume(ResumeDTO dto) {
+        if (dto == null || dto.getDetails() == null || dto.getContact() == null) return null;
 
         System.out.println(dto);
         System.out.println(dto.getUserId());
@@ -149,6 +149,8 @@ public class ResumeService {
 
         // Save Resume
         resumeRepository.save(resume);
+        
+        return resume.getId();
     
     }
     

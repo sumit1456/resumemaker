@@ -42,21 +42,23 @@ public class ResumeController {
 
 	
 	@PostMapping("saveall")
-	public ResponseEntity<String> saveAll(@RequestBody ResumeDTO dto) {
-		System.out.println("===========================================");
-		
-		System.out.println("Object which is received from frontend");
-		System.out.println(dto);
-		
-		System.out.println("===========================================");
-		
-		
-		System.out.println(dto);
-		System.out.println("Request was made");
-	    rs.saveResume(dto);
-	    return ResponseEntity.ok("Resume saved successfully");
+	public ResponseEntity<Map<String, Object>> saveAll(@RequestBody ResumeDTO dto) {
+	    System.out.println("===========================================");
+	    System.out.println("Save all was called");
+	    System.out.println("===========================================");
+
+	    // Save the resume and get the generated ID
+	    Long resumeId = rs.saveResume(dto); // make sure your service returns the generated resumeId
+
+	    // Prepare response as JSON
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("message", "Resume saved successfully");
+	    response.put("resumeId", resumeId);
+	    System.out.println(response);
+
+	    return ResponseEntity.ok(response);
 	}
-	
+
 	@PutMapping("/update/{resumeId}")
 	public ResponseEntity<String> updateAll(@RequestBody ResumeDTO dto, @PathVariable Long resumeId) {
 		System.out.println("resume update request has been made");
@@ -102,12 +104,12 @@ public class ResumeController {
         return ResponseEntity.ok(resume);
     }
     
-    @DeleteMapping("/my-resumes-delete-resume/{resumeId}")
+    @DeleteMapping("/my-resumes/delete-resume/{resumeId}")
     public ResponseEntity<String> deleteUser(@PathVariable Long resumeId) {
         String res = rs.deleteResume(resumeId);
         return ResponseEntity.ok(res);
     }
-    
+
     
     
     @PostMapping("/uploadResume")
