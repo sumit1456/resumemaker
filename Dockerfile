@@ -1,28 +1,34 @@
 # ---------- Stage 1: Build ----------
 FROM maven:3.9.9-eclipse-temurin-21 AS build
 
-# Set the working directory
 WORKDIR /app
 
-# Copy everything into the container
+# Copy pom first to use dependency caching
+COPY pom.xml .
+
+# Pre-download dependencies for faster builds
+RUN mvn -q dependency:go-offline
+
+# Copy all source code
 COPY . .
 
-# Ensure the wrapper is executable
-RUN chmod +x mvnw
+# Make Maven Wrapper executable (if exists)
+RUN chmod +x mvnw || true
 
-# Build the jar without running tests
-RUN ./mvnw package -DskipTests
+# Build the application without tests
+RUN mvn -q package -DskipTests
 
-# ---------- Stage 2: Run ----------
-FROM eclipse-temurin:21-jre AS run
+
+# ---------- Stage 2: Runtime ----------
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-# Copy the jar from the build stage
+# Copy the built JAR from build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose port 8080 for Render
+# Expose Spring Boot default port
 EXPOSE 8080
 
-# Start the application d
+# Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
