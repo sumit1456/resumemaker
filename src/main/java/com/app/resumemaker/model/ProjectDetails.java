@@ -17,6 +17,8 @@ public class ProjectDetails {
      * A long free-text description (can include newlines or Markdown).
      * Stored as a TEXT column.
      */
+    
+    @Lob
     @Column(columnDefinition = "TEXT")
     private String description;
 

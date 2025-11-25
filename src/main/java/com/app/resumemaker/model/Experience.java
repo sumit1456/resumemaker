@@ -15,6 +15,7 @@ public class Experience {
     private String location;
     private String duration;
 
+    @Lob
     @Column(columnDefinition = "TEXT") // multiple achievements stored as newline-separated text
     private String achievements;
 

@@ -44,30 +44,34 @@ public class AuthService {
 
     // ✅ Manual registration
     public SignupResponceDto registerUser(SignupRequestDto user2) {
-    	
+
         Optional<User> userExists = userrepo.findByEmail(user2.getEmail());
-        
-        if(!userExists.isEmpty() && userExists.get().isVerified()) {
-        	throw new UserExists();
+        User user;
+
+        if(userExists.isPresent()) {
+            user = userExists.get();
+
+            if(user.isVerified()) {
+                throw new UserExists();
+            }
+            vr.deleteByUserId(user.getId());
+
+        } else {
+            user = new User();
+            user.setUsername(user2.getName());
+            user.setPassword(passEncoder.encode(user2.getPassword()));
+            user.setEmail(user2.getEmail());
+            userrepo.save(user); // persist so ID exists
         }
 
-        User user = new User();
-        user.setUsername(user2.getName());
-        user.setPassword(passEncoder.encode(user2.getPassword()));
-        user.setEmail(user2.getEmail());
-
-        userrepo.save(user);
-        
-       
-        
+        // Create new verification token
         String token = UUID.randomUUID().toString();
         VerificationToken verificationToken = new VerificationToken(user, token);
         vr.save(verificationToken);
-        
+
+        // Send verification email
         brevoService.sendVerificationEmail(user.getEmail(), token);
-        
-        
-        
+
         return new SignupResponceDto("Registration successful", user.getId());
     }
 

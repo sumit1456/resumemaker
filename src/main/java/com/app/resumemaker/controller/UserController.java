@@ -44,6 +44,8 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequestDto dto) {
         try {
+        	System.out.println("The data sent to signup");
+        	System.out.println(dto);
             authService.registerUser(dto);
             return ResponseEntity.ok(Map.of(
             	    "success", true,
@@ -59,10 +61,25 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<Long> loginRequest(@RequestBody LoginRequestDTO dto) {
-        User user = authService.authenticate(dto.getEmail(), dto.getPassword());
-        return ResponseEntity.ok(user.getId()); // ✅ Return only userId
+    public ResponseEntity<?> loginRequest(@RequestBody LoginRequestDTO dto) {
+
+        try {
+            User user = authService.authenticate(dto.getEmail(), dto.getPassword());
+            return ResponseEntity.ok(
+                    Map.of(
+                            "status", "success",
+                            "userId", user.getId(),
+                            "message", "Login successful"));
+
+        } catch (InvalidCredentials e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(
+                            Map.of(
+                                    "status", "error",
+                                    "message", e.getMessage()));
+        }
     }
+
 
     @PostMapping("/google-login")
     public ResponseEntity<Long> googleLogin(@RequestBody GoogleLoginRequest request) {

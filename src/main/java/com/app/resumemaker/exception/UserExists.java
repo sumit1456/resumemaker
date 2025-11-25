@@ -3,7 +3,7 @@ package com.app.resumemaker.exception;
 public class UserExists extends RuntimeException {
 	
 	public String getMessage() {
-		return "User exists";
+		return "User already exists in the system";
 	}
 
 }

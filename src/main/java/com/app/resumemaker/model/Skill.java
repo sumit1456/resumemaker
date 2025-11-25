@@ -10,7 +10,9 @@ public class Skill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "skill_name", nullable = false, length = 100)
+    
+    @Lob
+    @Column(name = "skill_name", nullable = false)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
