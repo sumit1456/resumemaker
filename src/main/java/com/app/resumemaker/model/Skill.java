@@ -11,8 +11,8 @@ public class Skill {
     private Long id;
 
     
-    @Lob
-    @Column(name = "skill_name", nullable = false)
+    
+    @Column(name = "skill_name", nullable = false, length = 4000)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)

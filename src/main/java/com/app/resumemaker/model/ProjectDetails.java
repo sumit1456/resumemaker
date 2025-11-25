@@ -18,7 +18,7 @@ public class ProjectDetails {
      * Stored as a TEXT column.
      */
     
-    @Lob
+  
     @Column(columnDefinition = "TEXT")
     private String description;
 
