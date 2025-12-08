@@ -140,6 +140,7 @@ public class ResumeController {
                         .body(Map.of("error", "AI returned invalid or truncated JSON."));
             }
             
+            
             System.out.println(jsonResponse);
 
             // 5️⃣ Return parsed JSON to frontend
