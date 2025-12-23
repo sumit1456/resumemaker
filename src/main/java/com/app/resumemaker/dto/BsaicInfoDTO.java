@@ -8,6 +8,7 @@ public class BsaicInfoDTO {
     private String skills;
     private Object styleConfig; // Stores arbitrary style config JSON
     private ContactDTO contact; // DTO for the related ContactEntity
+    
 
     // ---------- Getters & Setters ----------
     public String getName() {
