@@ -23,7 +23,6 @@ import com.app.resumemaker.respository.UserRepository;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
-
 @Service
 public class ResumeService {
 
@@ -37,11 +36,12 @@ public class ResumeService {
     // Save or Create Resume
     // --------------------------
     public Long saveResume(ResumeDTO dto) {
-        if (dto == null || dto.getDetails() == null || dto.getContact() == null) return null;
+        if (dto == null || dto.getDetails() == null || dto.getContact() == null)
+            return null;
 
         System.out.println(dto);
         System.out.println(dto.getUserId());
-        
+
         Resume resume = new Resume();
         resume.setTemplateId(dto.getTemplateId());
         resume.setTitle(dto.getTitle());
@@ -60,15 +60,37 @@ public class ResumeService {
         contact.setLocation(dto.getContact().getLocation());
 
         basicInfo.setContact(contact);
+
+        // Map Section Titles (JSON)
+        if (dto.getSectionTitles() != null) {
+            try {
+                basicInfo.setSectionTitles(new ObjectMapper().writeValueAsString(dto.getSectionTitles()));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Object o = dto.getSectionTitles();
+        System.out.println(o);
+
+        // Map Style Config (JSON)
+        if (dto.getDetails().getStyleConfig() != null) {
+            StyleConfigEntity styleConfig = new StyleConfigEntity();
+            try {
+                styleConfig.setConfigData(new ObjectMapper().writeValueAsString(dto.getDetails().getStyleConfig()));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            basicInfo.setStyleConfig(styleConfig);
+        }
+
         resume.setBasicInfo(basicInfo);
 
         resume.setExperienceSummary(dto.getDetails().getSummary());
 
         // Map Experiences
-       
-        
-      
-     // --- Map Experiences like Projects ---
+
+        // --- Map Experiences like Projects ---
         if (dto.getExperiences() != null) {
             dto.getExperiences().forEach(expDto -> {
                 Experience exp = new Experience();
@@ -77,7 +99,8 @@ public class ResumeService {
                 exp.setLocation(expDto.getLocation());
                 exp.setDuration(expDto.getDuration());
 
-                // Convert List<String> to a single String for storage (like projects.description)
+                // Convert List<String> to a single String for storage (like
+                // projects.description)
                 if (expDto.getAchievements() != null && !expDto.getAchievements().isEmpty()) {
                     exp.setAchievements(String.join("\n", expDto.getAchievements()));
                 } else {
@@ -88,11 +111,6 @@ public class ResumeService {
                 resume.getExperiences().add(exp);
             });
         }
-
-        
-       
-
-
 
         // Map Projects
         if (dto.getProjects() != null) {
@@ -143,21 +161,39 @@ public class ResumeService {
             });
         }
 
+        // Map Custom Sections
+        if (dto.getCustomSections() != null) {
+            dto.getCustomSections().forEach(custDto -> {
+                CustomSectionEntity cust = new CustomSectionEntity();
+                cust.setTitle(custDto.getTitle());
+                try {
+                    cust.setSectionData(new ObjectMapper().writeValueAsString(custDto.getSectionData()));
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+                cust.setResume(resume);
+                resume.getCustomSections().add(cust);
+                System.out.println(cust);
+
+            });
+        }
+  
+      
+        
         // Set User
         Optional<User> opt = userrepo.findById(dto.getUserId());
         opt.ifPresent(resume::setUser);
 
         // Save Resume
         resumeRepository.save(resume);
-        
+
         return resume.getId();
-    
+
     }
-    
-    
-    
+
     public void updateResume(Long resumeId, ResumeDTO dto) {
-        if (resumeId == null || dto == null) return;
+        if (resumeId == null || dto == null)
+            return;
 
         // Find existing resume
         Resume existingResume = resumeRepository.findById(resumeId)
@@ -195,6 +231,29 @@ public class ResumeService {
             contact.setLocation(dto.getContact().getLocation());
         }
 
+        // Update Section Titles
+        if (dto.getSectionTitles() != null) {
+            try {
+                basicInfo.setSectionTitles(new ObjectMapper().writeValueAsString(dto.getSectionTitles()));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Update Style Config
+        if (dto.getDetails() != null && dto.getDetails().getStyleConfig() != null) {
+            StyleConfigEntity styleConfig = basicInfo.getStyleConfig();
+            if (styleConfig == null) {
+                styleConfig = new StyleConfigEntity();
+                basicInfo.setStyleConfig(styleConfig);
+            }
+            try {
+                styleConfig.setConfigData(new ObjectMapper().writeValueAsString(dto.getDetails().getStyleConfig()));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
         // ✅ Clear and re-add collections (simplest approach)
         existingResume.getExperiences().clear();
         if (dto.getExperiences() != null) {
@@ -222,8 +281,25 @@ public class ResumeService {
             });
         }
 
+        existingResume.getCustomSections().clear();
+        if (dto.getCustomSections() != null) {
+            dto.getCustomSections().forEach(custDto -> {
+                CustomSectionEntity cust = new CustomSectionEntity();
+                cust.setTitle(custDto.getTitle());
+                try {
+                    cust.setSectionData(new ObjectMapper().writeValueAsString(custDto.getSectionData()));
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+                cust.setResume(existingResume);
+                existingResume.getCustomSections().add(cust);
+            });
+        }
+
         existingResume.getEducationList().clear();
-        if (dto.getEducationList() != null) {
+        if (dto.getEducationList() != null)
+
+        {
             dto.getEducationList().forEach(eduDto -> {
                 Education edu = new Education();
                 edu.setDegree(eduDto.getDegree());
@@ -268,7 +344,6 @@ public class ResumeService {
         resumeRepository.save(existingResume);
     }
 
-
     // --------------------------
     // Fetch all resumes for a user (minimal info for MyResumes.jsx)
     // --------------------------
@@ -299,7 +374,8 @@ public class ResumeService {
     // --------------------------
     public ResumeDTO getResumeById(Long resumeId) {
         Resume resume = resumeRepository.findResumeWithAllDetails(resumeId);
-        if (resume == null) return null;
+        if (resume == null)
+            return null;
 
         ResumeDTO dto = new ResumeDTO();
         dto.setTemplateId(resume.getTemplateId());
@@ -315,7 +391,20 @@ public class ResumeService {
         dto.setEducationList(mapEducation(resume.getEducationList()));
         dto.setCertifications(mapCertifications(resume.getCertifications()));
         dto.setSkills(mapSkills(resume.getSkills()));
-    
+
+        // Map Custom Sections
+        dto.setCustomSections(mapCustomSections(resume.getCustomSections()));
+
+        // Map Section Titles
+        if (resume.getBasicInfo() != null && resume.getBasicInfo().getSectionTitles() != null) {
+            try {
+                dto.setSectionTitles(new ObjectMapper().readValue(resume.getBasicInfo().getSectionTitles(),
+                        new com.fasterxml.jackson.core.type.TypeReference<java.util.Map<String, String>>() {
+                        }));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         return dto;
     }
@@ -324,16 +413,27 @@ public class ResumeService {
     // Mapping helpers (Set -> List)
     // --------------------------
     private BsaicInfoDTO mapBasicInfo(BasicInfoEntity basicInfo) {
-        if (basicInfo == null) return null;
+        if (basicInfo == null)
+            return null;
         BsaicInfoDTO dto = new BsaicInfoDTO();
         dto.setName(basicInfo.getName());
         dto.setTitle(basicInfo.getTitle());
         dto.setSummary(basicInfo.getSummary());
+
+        if (basicInfo.getStyleConfig() != null && basicInfo.getStyleConfig().getConfigData() != null) {
+            try {
+                dto.setStyleConfig(
+                        new ObjectMapper().readValue(basicInfo.getStyleConfig().getConfigData(), Object.class));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return dto;
     }
 
     private ContactDTO mapContact(ContactEntity contact) {
-        if (contact == null) return null;
+        if (contact == null)
+            return null;
         ContactDTO dto = new ContactDTO();
         dto.setEmail(contact.getEmail());
         dto.setPhone(contact.getPhone());
@@ -355,17 +455,15 @@ public class ResumeService {
 
                 // map achievements as a list
                 dto.setAchievements(
-                    e.getAchievements() != null 
-                        ? Arrays.asList(e.getAchievements().split("\\r?\\n")) 
-                        : new ArrayList<>()
-                );
+                        e.getAchievements() != null
+                                ? Arrays.asList(e.getAchievements().split("\\r?\\n"))
+                                : new ArrayList<>());
 
                 list.add(dto);
             });
         }
         return list;
     }
-
 
     private List<ProjectDTO> mapProjects(Set<ProjectDetails> projects) {
         List<ProjectDTO> list = new ArrayList<>();
@@ -422,21 +520,37 @@ public class ResumeService {
         return list;
     }
 
+    private List<CustomSectionDTO> mapCustomSections(Set<CustomSectionEntity> customSections) {
+        List<CustomSectionDTO> list = new ArrayList<>();
+        if (customSections != null) {
+            customSections.forEach(c -> {
+                CustomSectionDTO dto = new CustomSectionDTO();
+                dto.setTitle(c.getTitle());
+                try {
+                    if (c.getSectionData() != null) {
+                        dto.setSectionData(new ObjectMapper().readValue(c.getSectionData(), Object.class));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                list.add(dto);
+            });
+        }
+        return list;
+    }
 
+    public String deleteResume(Long resumeId) {
+        Resume rs = resumeRepository.findById(resumeId).get();
+        resumeRepository.delete(rs);
+        return "resume deleted successfully";
 
-	public String deleteResume(Long resumeId) {
-	    Resume rs = resumeRepository.findById(resumeId).get();
-	    resumeRepository.delete(rs);
-		return "resume deleted successfully";
-	    
-	}
-	
-	  public String extractTextFromPdf(MultipartFile file) throws IOException {
-	        try (PDDocument document = PDDocument.load(file.getInputStream())) {
-	            PDFTextStripper pdfStripper = new PDFTextStripper();
-	            return pdfStripper.getText(document);
-	        }
-	    }
+    }
 
+    public String extractTextFromPdf(MultipartFile file) throws IOException {
+        try (PDDocument document = PDDocument.load(file.getInputStream())) {
+            PDFTextStripper pdfStripper = new PDFTextStripper();
+            return pdfStripper.getText(document);
+        }
+    }
 
 }

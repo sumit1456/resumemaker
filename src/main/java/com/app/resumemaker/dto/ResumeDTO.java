@@ -6,32 +6,43 @@ import com.app.resumemaker.model.User;
 
 public class ResumeDTO {
     private long id;
-    public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
-	}
 
-	private BsaicInfoDTO details;          // Basic info including name, title, summary, skills
-    private ContactDTO contact;            // Contact details
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    private BsaicInfoDTO details; // Basic info including name, title, summary, skills
+    private ContactDTO contact; // Contact details
     private List<ExperienceDTO> experiences;
     private List<ProjectDTO> projects;
     private List<EducationDTO> educationList;
+
     private List<CertificationsDTO> certifications;
-    
+
+    private List<CustomSectionDTO> customSections; // New field for custom sections
+    private java.util.Map<String, String> sectionTitles; // New field for custom titles
+
     private int templateId;
 
     public int getTemplateId() {
-		return templateId;
-	}
-    
+        return templateId;
+    }
+
     private String title;
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
 
+    public String getTitle() {
+        return title;
+    }
 
-	// ✅ Added: skills to match the Skill entity
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    // ✅ Added: skills to match the Skill entity
     private List<SkillDTO> skills;
 
     private Long userId;
@@ -55,6 +66,22 @@ public class ResumeDTO {
 
     public ContactDTO getContact() {
         return contact;
+    }
+
+    public List<CustomSectionDTO> getCustomSections() {
+        return customSections;
+    }
+
+    public void setCustomSections(List<CustomSectionDTO> customSections) {
+        this.customSections = customSections;
+    }
+
+    public java.util.Map<String, String> getSectionTitles() {
+        return sectionTitles;
+    }
+
+    public void setSectionTitles(java.util.Map<String, String> sectionTitles) {
+        this.sectionTitles = sectionTitles;
     }
 
     public void setContact(ContactDTO contact) {
@@ -101,18 +128,15 @@ public class ResumeDTO {
         this.skills = skills;
     }
 
-    @Override
-    public String toString() {
-        return "ResumeDTO [details=" + details + ", contact=" + contact + ", experiences=" + experiences
-                + ", projects=" + projects + ", educationList=" + educationList
-                + ", certifications=" + certifications + ", skills=" + skills + "]";
-    }
+    
 
-	public void setTemplateId(int templateId) {
-		this.templateId = templateId;
+    @Override
+	public String toString() {
+		return "ResumeDTO [customSections=" + customSections + ", sectionTitles=" + sectionTitles + "]";
 	}
 
-	
+	public void setTemplateId(int templateId) {
+        this.templateId = templateId;
+    }
 
-	
 }
