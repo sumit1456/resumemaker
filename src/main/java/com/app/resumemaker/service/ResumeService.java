@@ -62,26 +62,20 @@ public class ResumeService {
         basicInfo.setContact(contact);
 
         // Map Section Titles (JSON)
-        if (dto.getSectionTitles() != null) {
-            try {
-                basicInfo.setSectionTitles(new ObjectMapper().writeValueAsString(dto.getSectionTitles()));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-
+        
         Object o = dto.getSectionTitles();
         System.out.println(o);
 
         // Map Style Config (JSON)
-        if (dto.getDetails().getStyleConfig() != null) {
+        // Map Style Config (JSON)
+        if (dto.getStyleConfig() != null) {
             StyleConfigEntity styleConfig = new StyleConfigEntity();
             try {
-                styleConfig.setConfigData(new ObjectMapper().writeValueAsString(dto.getDetails().getStyleConfig()));
+                styleConfig.setConfigData(new ObjectMapper().writeValueAsString(dto.getStyleConfig()));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
-            basicInfo.setStyleConfig(styleConfig);
+            resume.setStyleConfig(styleConfig);
         }
 
         resume.setBasicInfo(basicInfo);
@@ -177,9 +171,7 @@ public class ResumeService {
 
             });
         }
-  
-      
-        
+
         // Set User
         Optional<User> opt = userrepo.findById(dto.getUserId());
         opt.ifPresent(resume::setUser);
@@ -231,24 +223,17 @@ public class ResumeService {
             contact.setLocation(dto.getContact().getLocation());
         }
 
-        // Update Section Titles
-        if (dto.getSectionTitles() != null) {
-            try {
-                basicInfo.setSectionTitles(new ObjectMapper().writeValueAsString(dto.getSectionTitles()));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
+        
 
         // Update Style Config
-        if (dto.getDetails() != null && dto.getDetails().getStyleConfig() != null) {
-            StyleConfigEntity styleConfig = basicInfo.getStyleConfig();
+        if (dto.getStyleConfig() != null) {
+            StyleConfigEntity styleConfig = existingResume.getStyleConfig();
             if (styleConfig == null) {
                 styleConfig = new StyleConfigEntity();
-                basicInfo.setStyleConfig(styleConfig);
+                existingResume.setStyleConfig(styleConfig);
             }
             try {
-                styleConfig.setConfigData(new ObjectMapper().writeValueAsString(dto.getDetails().getStyleConfig()));
+                styleConfig.setConfigData(new ObjectMapper().writeValueAsString(dto.getStyleConfig()));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -393,18 +378,24 @@ public class ResumeService {
         dto.setSkills(mapSkills(resume.getSkills()));
 
         // Map Custom Sections
-        dto.setCustomSections(mapCustomSections(resume.getCustomSections()));
+        if(dto.getCustomSections()!=null) {
+        	 dto.setCustomSections(mapCustomSections(resume.getCustomSections()));
+        }
+       
 
         // Map Section Titles
-        if (resume.getBasicInfo() != null && resume.getBasicInfo().getSectionTitles() != null) {
+       
+        // Map Style Config
+        if (resume.getStyleConfig() != null && resume.getStyleConfig().getConfigData() != null) {
             try {
-                dto.setSectionTitles(new ObjectMapper().readValue(resume.getBasicInfo().getSectionTitles(),
-                        new com.fasterxml.jackson.core.type.TypeReference<java.util.Map<String, String>>() {
-                        }));
+                dto.setStyleConfig(
+                        new ObjectMapper().readValue(resume.getStyleConfig().getConfigData(), Object.class));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        
+        System.out.println(resume.getStyleConfig());
 
         return dto;
     }
@@ -420,14 +411,8 @@ public class ResumeService {
         dto.setTitle(basicInfo.getTitle());
         dto.setSummary(basicInfo.getSummary());
 
-        if (basicInfo.getStyleConfig() != null && basicInfo.getStyleConfig().getConfigData() != null) {
-            try {
-                dto.setStyleConfig(
-                        new ObjectMapper().readValue(basicInfo.getStyleConfig().getConfigData(), Object.class));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        // StyleConfig removed from BasicInfo
+
         return dto;
     }
 

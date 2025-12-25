@@ -15,7 +15,7 @@ public class Resume {
     @Column(length = 100)
     private String title;
 
-    private int templateId;
+    private String templateId;
 
     // ---------- Relationships ----------
     @OneToOne(cascade = CascadeType.ALL)
@@ -47,6 +47,10 @@ public class Resume {
     @Column(columnDefinition = "TEXT")
     private String experienceSummary;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "style_config_id", referencedColumnName = "id")
+    private StyleConfigEntity styleConfig;
+
     // ---------- Getters & Setters ----------
     public Long getId() {
         return id;
@@ -64,11 +68,11 @@ public class Resume {
         this.title = title;
     }
 
-    public int getTemplateId() {
+    public String getTemplateId() {
         return templateId;
     }
 
-    public void setTemplateId(int templateId) {
+    public void setTemplateId(String templateId) {
         this.templateId = templateId;
     }
 
@@ -149,5 +153,13 @@ public class Resume {
 
     public Set<CustomSectionEntity> getCustomSections() {
         return customSections;
+    }
+
+    public StyleConfigEntity getStyleConfig() {
+        return styleConfig;
+    }
+
+    public void setStyleConfig(StyleConfigEntity styleConfig) {
+        this.styleConfig = styleConfig;
     }
 }

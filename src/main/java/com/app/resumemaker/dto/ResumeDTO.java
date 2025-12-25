@@ -2,8 +2,6 @@ package com.app.resumemaker.dto;
 
 import java.util.List;
 
-import com.app.resumemaker.model.User;
-
 public class ResumeDTO {
     private long id;
 
@@ -24,11 +22,16 @@ public class ResumeDTO {
     private List<CertificationsDTO> certifications;
 
     private List<CustomSectionDTO> customSections; // New field for custom sections
+    
+    
+    
     private java.util.Map<String, String> sectionTitles; // New field for custom titles
 
-    private int templateId;
+    private Object styleConfig; // Stores arbitrary style config JSON
 
-    public int getTemplateId() {
+    private String templateId;
+
+    public String getTemplateId() {
         return templateId;
     }
 
@@ -128,15 +131,21 @@ public class ResumeDTO {
         this.skills = skills;
     }
 
-    
-
     @Override
-	public String toString() {
-		return "ResumeDTO [customSections=" + customSections + ", sectionTitles=" + sectionTitles + "]";
-	}
+    public String toString() {
+        return "ResumeDTO [customSections=" + customSections + ", sectionTitles=" + sectionTitles + "]";
+    }
 
-	public void setTemplateId(int templateId) {
+    public void setTemplateId(String templateId) {
         this.templateId = templateId;
+    }
+
+    public Object getStyleConfig() {
+        return styleConfig;
+    }
+
+    public void setStyleConfig(Object styleConfig) {
+        this.styleConfig = styleConfig;
     }
 
 }

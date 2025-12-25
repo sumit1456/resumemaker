@@ -20,13 +20,6 @@ public class BasicInfoEntity {
     @JoinColumn(name = "contact_id", referencedColumnName = "id")
     private ContactEntity contact;
 
-    @Column(columnDefinition = "TEXT")
-    private String sectionTitles; // Stores JSON string of title map
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "style_config_id", referencedColumnName = "id")
-    private StyleConfigEntity styleConfig;
-
     // Getters and Setters
     public Long getId() {
         return id;
@@ -68,19 +61,6 @@ public class BasicInfoEntity {
         this.contact = contact;
     }
 
-    public String getSectionTitles() {
-        return sectionTitles;
-    }
+    
 
-    public void setSectionTitles(String sectionTitles) {
-        this.sectionTitles = sectionTitles;
-    }
-
-    public StyleConfigEntity getStyleConfig() {
-        return styleConfig;
-    }
-
-    public void setStyleConfig(StyleConfigEntity styleConfig) {
-        this.styleConfig = styleConfig;
-    }
 }

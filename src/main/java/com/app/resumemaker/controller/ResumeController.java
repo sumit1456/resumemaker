@@ -43,7 +43,7 @@ public class ResumeController {
 	GroqAIService gs;
 
 	
-	@PostMapping("saveall")
+	@PostMapping("/saveall")
 	public ResponseEntity<Map<String, Object>> saveAll(@RequestBody ResumeDTO dto) {
 	    System.out.println("===========================================");
 	    System.out.println("Save all was called");
