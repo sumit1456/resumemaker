@@ -62,7 +62,7 @@ public class ResumeService {
         basicInfo.setContact(contact);
 
         // Map Section Titles (JSON)
-        
+
         Object o = dto.getSectionTitles();
         System.out.println(o);
 
@@ -223,17 +223,17 @@ public class ResumeService {
             contact.setLocation(dto.getContact().getLocation());
         }
 
-        
-
-        // Update Style Config
+        // Update StyleConfig
         if (dto.getStyleConfig() != null) {
+            System.out.println("Updating Style Config: " + dto.getStyleConfig());
             StyleConfigEntity styleConfig = existingResume.getStyleConfig();
             if (styleConfig == null) {
                 styleConfig = new StyleConfigEntity();
                 existingResume.setStyleConfig(styleConfig);
             }
             try {
-                styleConfig.setConfigData(new ObjectMapper().writeValueAsString(dto.getStyleConfig()));
+                String configJson = new ObjectMapper().writeValueAsString(dto.getStyleConfig());
+                styleConfig.setConfigData(configJson);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -378,13 +378,12 @@ public class ResumeService {
         dto.setSkills(mapSkills(resume.getSkills()));
 
         // Map Custom Sections
-        if(dto.getCustomSections()!=null) {
-        	 dto.setCustomSections(mapCustomSections(resume.getCustomSections()));
+        if (dto.getCustomSections() != null) {
+            dto.setCustomSections(mapCustomSections(resume.getCustomSections()));
         }
-       
 
         // Map Section Titles
-       
+
         // Map Style Config
         if (resume.getStyleConfig() != null && resume.getStyleConfig().getConfigData() != null) {
             try {
@@ -394,7 +393,7 @@ public class ResumeService {
                 e.printStackTrace();
             }
         }
-        
+
         System.out.println(resume.getStyleConfig());
 
         return dto;

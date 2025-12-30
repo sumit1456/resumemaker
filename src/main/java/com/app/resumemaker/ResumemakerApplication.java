@@ -4,6 +4,7 @@ import java.util.Map;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,8 +14,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
 public class ResumemakerApplication {
-
-	//adding a comment to check
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(ResumemakerApplication.class);
         String port = System.getenv("PORT"); // Dynamic port for Render
@@ -30,19 +29,20 @@ public class ResumemakerApplication {
         return new BCryptPasswordEncoder();
     }
 
-    // Security configuration — disable CSRF and allow all requests including Swagger
+    // Security configuration — disable CSRF and allow all requests including
+    // Swagger
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/v3/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html"
-                ).permitAll()
-                .anyRequest().permitAll()
-            );
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html")
+                        .permitAll()
+                        .anyRequest().permitAll());
         return http.build();
     }
 
@@ -54,10 +54,11 @@ public class ResumemakerApplication {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(
-                            "http://localhost:5173",                           // local dev
-                            "https://resumemaker-frontend-master.onrender.com", // deployed frontend
-                            "https://resumemaker-frontend.vercel.app"          // optional
-                        )
+                                "http://localhost:5173", // local dev
+                                "https://resumemaker-frontend-master.onrender.com", // deployed frontend
+                                "https://resumemaker-frontend.vercel.app", // optional
+                                "https://resume-maker-pro.netlify.app" // Netlify frontend
+                )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
