@@ -1,6 +1,8 @@
 package com.app.resumemaker.service;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -8,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.app.resumemaker.dto.LoginRequestDTO;
 import com.app.resumemaker.dto.SignupRequestDto;
 import com.app.resumemaker.dto.SignupResponceDto;
 import com.app.resumemaker.exception.InvalidCredentials;
@@ -24,7 +25,6 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 
-
 @Service
 public class AuthService {
 
@@ -33,12 +33,10 @@ public class AuthService {
 
     @Autowired
     private PasswordEncoder passEncoder;
-    
-    
+
     @Autowired
     private VerificationRepository vr;
-    
-    
+
     @Autowired
     private BrevoService brevoService;
 
@@ -48,10 +46,10 @@ public class AuthService {
         Optional<User> userExists = userrepo.findByEmail(user2.getEmail());
         User user;
 
-        if(userExists.isPresent()) {
+        if (userExists.isPresent()) {
             user = userExists.get();
 
-            if(user.isVerified()) {
+            if (user.isVerified()) {
                 throw new UserExists();
             }
             vr.deleteByUserId(user.getId());
@@ -75,8 +73,11 @@ public class AuthService {
         return new SignupResponceDto("Registration successful", user.getId());
     }
 
+    @Autowired
+    private com.app.resumemaker.security.JwtUtils jwtUtils;
+
     // ✅ Manual login
-    public User authenticate(String email, String password) {
+    public Map<String, Object> authenticate(String email, String password) {
         Optional<User> data = userrepo.findByEmail(email);
         if (data.isEmpty()) {
             throw new UserNotFound("Please enter valid credentials");
@@ -88,22 +89,31 @@ public class AuthService {
             throw new InvalidCredentials();
         }
 
-        return fromDatabase;
+        String token = jwtUtils.generateToken(fromDatabase.getEmail());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", fromDatabase);
+        response.put("token", token);
+        return response;
     }
 
     // ✅ Google login
-    public User loginWithGoogle(String token) throws Exception {
+    public Map<String, Object> loginWithGoogle(String googleToken) throws Exception {
         // Step 1: Verify Google token
-        
-    	GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-    	        GoogleNetHttpTransport.newTrustedTransport(),
-    	        GsonFactory.getDefaultInstance() // ✅ use GsonFactory instead of JacksonFactory
-    	)
-    	.setAudience(Collections.singletonList("702821068415-um4cbj2o2m9rog3t1gdlqhcbudhph6p9.apps.googleusercontent.com")) // your Google client ID here
-    	.build();
 
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                GsonFactory.getDefaultInstance() // ✅ use GsonFactory instead of JacksonFactory
+        )
+                .setAudience(Collections
+                        .singletonList("702821068415-um4cbj2o2m9rog3t1gdlqhcbudhph6p9.apps.googleusercontent.com")) // your
+                                                                                                                    // Google
+                                                                                                                    // client
+                                                                                                                    // ID
+                                                                                                                    // here
+                .build();
 
-        GoogleIdToken idToken = verifier.verify(token);
+        GoogleIdToken idToken = verifier.verify(googleToken);
         if (idToken == null) {
             throw new IllegalArgumentException("Invalid Google ID token");
         }
@@ -112,7 +122,6 @@ public class AuthService {
         GoogleIdToken.Payload payload = idToken.getPayload();
         String email = payload.getEmail();
         String name = (String) payload.get("name");
-        String picture = (String) payload.get("picture");
 
         // Step 3: Check if user already exists
         Optional<User> optionalUser = userrepo.findByEmail(email);
@@ -129,7 +138,11 @@ public class AuthService {
             userrepo.save(user);
         }
 
-        // Step 5: Return user
-        return user;
+        String token = jwtUtils.generateToken(user.getEmail());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", user);
+        response.put("token", token);
+        return response;
     }
 }

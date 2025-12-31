@@ -1,6 +1,7 @@
 package com.app.resumemaker;
 
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +30,9 @@ public class ResumemakerApplication {
         return new BCryptPasswordEncoder();
     }
 
+    @Autowired
+    private com.app.resumemaker.security.JwtAuthenticationFilter jwtAuthFilter;
+
     // Security configuration — disable CSRF and allow all requests including
     // Swagger
     @Bean
@@ -40,9 +44,17 @@ public class ResumemakerApplication {
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html")
+                                "/swagger-ui.html",
+                                "/signup",
+                                "/login",
+                                "/google-login",
+                                "/ping")
                         .permitAll()
-                        .anyRequest().permitAll());
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(
+                        org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthFilter,
+                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
