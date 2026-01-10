@@ -48,7 +48,8 @@ public class ResumemakerApplication {
                                 "/signup",
                                 "/login",
                                 "/google-login",
-                                "/ping")
+                                "/ping",
+                                "/pdf-extraction-config" )
                         .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(
