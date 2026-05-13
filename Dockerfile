@@ -30,5 +30,8 @@ COPY --from=build /app/target/*.jar app.jar
 # Expose Spring Boot default port
 EXPOSE 8080
 
+# Default JVM options for 512MB RAM (can be overridden via environment variables)
+ENV JAVA_OPTS="-Xmx320m -Xms320m -XX:+UseSerialGC -Xss512k -XX:MaxMetaspaceSize=128m"
+
 # Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
