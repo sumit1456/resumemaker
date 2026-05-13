@@ -28,7 +28,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/resumemaker:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/resumemaker:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/resumemaker:latest
+            ${{ secrets.DOCKER_USERNAME }}/resumemaker:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
