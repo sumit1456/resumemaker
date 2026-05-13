@@ -1,0 +1,148 @@
+package com.app.resumemaker.service;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.app.resumemaker.dto.SignupRequestDto;
+import com.app.resumemaker.dto.SignupResponceDto;
+import com.app.resumemaker.exception.InvalidCredentials;
+import com.app.resumemaker.exception.UserExists;
+import com.app.resumemaker.exception.UserNotFound;
+import com.app.resumemaker.model.User;
+import com.app.resumemaker.model.VerificationToken;
+import com.app.resumemaker.respository.UserRepository;
+import com.app.resumemaker.respository.VerificationRepository;
+// ✅ Google API imports
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+
+@Service
+public class AuthService {
+
+    @Autowired
+    private UserRepository userrepo;
+
+    @Autowired
+    private PasswordEncoder passEncoder;
+
+    @Autowired
+    private VerificationRepository vr;
+
+    @Autowired
+    private BrevoService brevoService;
+
+    // ✅ Manual registration
+    public SignupResponceDto registerUser(SignupRequestDto user2) {
+
+        Optional<User> userExists = userrepo.findByEmail(user2.getEmail());
+        User user;
+
+        if (userExists.isPresent()) {
+            user = userExists.get();
+
+            if (user.isVerified()) {
+                throw new UserExists();
+            }
+            vr.deleteByUserId(user.getId());
+
+        } else {
+            user = new User();
+            user.setUsername(user2.getName());
+            user.setPassword(passEncoder.encode(user2.getPassword()));
+            user.setEmail(user2.getEmail());
+            userrepo.save(user); // persist so ID exists
+        }
+
+        // Create new verification token
+        String token = UUID.randomUUID().toString();
+        VerificationToken verificationToken = new VerificationToken(user, token);
+        vr.save(verificationToken);
+
+        // Send verification email
+        brevoService.sendVerificationEmail(user.getEmail(), token);
+
+        return new SignupResponceDto("Registration successful", user.getId());
+    }
+
+    @Autowired
+    private com.app.resumemaker.security.JwtUtils jwtUtils;
+
+    // ✅ Manual login
+    public Map<String, Object> authenticate(String email, String password) {
+        Optional<User> data = userrepo.findByEmail(email);
+        if (data.isEmpty()) {
+            throw new UserNotFound("Please enter valid credentials");
+        }
+
+        User fromDatabase = data.get();
+        boolean matches = passEncoder.matches(password, fromDatabase.getPassword());
+        if (!matches) {
+            throw new InvalidCredentials();
+        }
+
+        String token = jwtUtils.generateToken(fromDatabase.getEmail());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", fromDatabase);
+        response.put("token", token);
+        return response;
+    }
+
+    // ✅ Google login
+    public Map<String, Object> loginWithGoogle(String googleToken) throws Exception {
+        // Step 1: Verify Google token
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                GsonFactory.getDefaultInstance() // ✅ use GsonFactory instead of JacksonFactory
+        )
+                .setAudience(Collections
+                        .singletonList("702821068415-um4cbj2o2m9rog3t1gdlqhcbudhph6p9.apps.googleusercontent.com")) // your
+                                                                                                                    // Google
+                                                                                                                    // client
+                                                                                                                    // ID
+                                                                                                                    // here
+                .build();
+
+        GoogleIdToken idToken = verifier.verify(googleToken);
+        if (idToken == null) {
+            throw new IllegalArgumentException("Invalid Google ID token");
+        }
+
+        // Step 2: Extract user info from token payload
+        GoogleIdToken.Payload payload = idToken.getPayload();
+        String email = payload.getEmail();
+        String name = (String) payload.get("name");
+
+        // Step 3: Check if user already exists
+        Optional<User> optionalUser = userrepo.findByEmail(email);
+        User user;
+
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+        } else {
+            // Step 4: Create new user
+            user = new User();
+            user.setEmail(email);
+            user.setUsername(name);
+            user.setPassword(null); // No password for Google users
+            userrepo.save(user);
+        }
+
+        String token = jwtUtils.generateToken(user.getEmail());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", user);
+        response.put("token", token);
+        return response;
+    }
+}
