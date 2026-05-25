@@ -19,6 +19,28 @@ public class BrevoService {
     private String apiKey;
 
     private final WebClient webClient = WebClient.create("https://api.brevo.com/v3");
+    private final WebClient emailMicroserviceClient = WebClient.create("http://16.176.86.18:8081");
+
+    public void sendVerificationEmailV2(String toEmail, String token) {
+        System.out.println("📨 BrevoService.sendVerificationEmailV2() called for: " + toEmail);
+
+        Map<String, String> payload = Map.of(
+            "email", toEmail,
+            "token", token
+        );
+
+        System.out.println("📦 Sending payload to Email Microservice: " + payload);
+
+        emailMicroserviceClient.post()
+            .uri("/send-verification")
+            .header("Content-Type", "application/json")
+            .bodyValue(payload)
+            .retrieve()
+            .bodyToMono(String.class)
+            .doOnNext(response -> System.out.println("✅ Email Microservice Response: " + response))
+            .doOnError(err -> System.err.println("❌ Email Microservice Error: " + err.getMessage()))
+            .subscribe();
+    }
 
     public void sendVerificationEmail(String toEmail, String token) {
     	System.out.println(apiKey);

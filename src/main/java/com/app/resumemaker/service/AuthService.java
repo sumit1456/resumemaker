@@ -73,6 +73,39 @@ public class AuthService {
         return new SignupResponceDto("Registration successful", user.getId());
     }
 
+    // ✅ Manual registration V2 (uses external email microservice)
+    public SignupResponceDto registerUserV2(SignupRequestDto user2) {
+
+        Optional<User> userExists = userrepo.findByEmail(user2.getEmail());
+        User user;
+
+        if (userExists.isPresent()) {
+            user = userExists.get();
+
+            if (user.isVerified()) {
+                throw new UserExists();
+            }
+            vr.deleteByUserId(user.getId());
+
+        } else {
+            user = new User();
+            user.setUsername(user2.getName());
+            user.setPassword(passEncoder.encode(user2.getPassword()));
+            user.setEmail(user2.getEmail());
+            userrepo.save(user); // persist so ID exists
+        }
+
+        // Create new verification token
+        String token = UUID.randomUUID().toString();
+        VerificationToken verificationToken = new VerificationToken(user, token);
+        vr.save(verificationToken);
+
+        // Send verification email using microservice V2
+        brevoService.sendVerificationEmailV2(user.getEmail(), token);
+
+        return new SignupResponceDto("Registration successful", user.getId());
+    }
+
     @Autowired
     private com.app.resumemaker.security.JwtUtils jwtUtils;
 

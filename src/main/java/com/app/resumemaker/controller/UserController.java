@@ -53,6 +53,24 @@ public class UserController {
         }
     }
 
+    // Simple sign-up V2 (uses external email microservice)
+    @PostMapping("/v2/signup")
+    public ResponseEntity<?> registerUserV2(@RequestBody SignupRequestDto dto) {
+        try {
+            System.out.println("The data sent to V2 signup");
+            System.out.println(dto);
+            authService.registerUserV2(dto);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Registered Successfully via V2"));
+
+        } catch (Exception e) {
+            e.printStackTrace(); // shows exact error in your Spring console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> loginRequest(@RequestBody LoginRequestDTO dto) {
 
