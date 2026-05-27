@@ -11,15 +11,29 @@ import org.springframework.beans.factory.annotation.Value;
 
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.json.JSONObject;
 
 @Service
 public class BrevoService {
+
+    @Value("${email.microservice.url}")
+    private String emailMicroserviceUrl;
 
     @Value("${brevo.api.key}")
     private String apiKey;
 
     private final WebClient webClient = WebClient.create("https://api.brevo.com/v3");
-    private final WebClient emailMicroserviceClient = WebClient.create("http://16.176.86.18:8081");
+    private WebClient emailMicroserviceClient;
+
+    @PostConstruct
+    public void init() {
+        this.emailMicroserviceClient = WebClient.create(emailMicroserviceUrl);
+    }
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     public void sendVerificationEmailV2(String toEmail, String token) {
         System.out.println("📨 BrevoService.sendVerificationEmailV2() called for: " + toEmail);
@@ -29,17 +43,15 @@ public class BrevoService {
             "token", token
         );
 
-        System.out.println("📦 Sending payload to Email Microservice: " + payload);
-
-        emailMicroserviceClient.post()
-            .uri("/send-verification")
-            .header("Content-Type", "application/json")
-            .bodyValue(payload)
-            .retrieve()
-            .bodyToMono(String.class)
-            .doOnNext(response -> System.out.println("✅ Email Microservice Response: " + response))
-            .doOnError(err -> System.err.println("❌ Email Microservice Error: " + err.getMessage()))
-            .subscribe();
+        try {
+            String jsonPayload = new JSONObject(payload).toString();
+            System.out.println("📦 Publishing verification payload to RabbitMQ: " + jsonPayload);
+            rabbitTemplate.convertAndSend("email_verification_queue", jsonPayload);
+            System.out.println("✅ Successfully published verification message to RabbitMQ.");
+        } catch (Exception e) {
+            System.err.println("❌ Failed to publish verification message to RabbitMQ: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void sendVerificationEmail(String toEmail, String token) {

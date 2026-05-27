@@ -46,6 +46,7 @@ public class ResumemakerApplication {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/signup",
+                                "/v2/signup",
                                 "/login",
                                 "/google-login",
                                 "/ping",
