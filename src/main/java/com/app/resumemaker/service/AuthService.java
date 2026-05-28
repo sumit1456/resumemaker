@@ -68,7 +68,7 @@ public class AuthService {
         vr.save(verificationToken);
 
         // Send verification email
-        brevoService.sendVerificationEmail(user.getEmail(), token);
+        brevoService.sendVerificationEmailV2(user.getEmail(), token);
 
         return new SignupResponceDto("Registration successful", user.getId());
     }
