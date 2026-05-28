@@ -23,6 +23,10 @@ public class BrevoService {
 
     @Value("${brevo.api.key}")
     private String apiKey;
+
+    @Value("${frontend.url:https://resume-maker-pro.netlify.app}")
+    private String frontendUrl;
+
     @Value("${RABBITMQ_QUEUE_RESUMEMAKER:email_resumemaker_queue}")
     private String resumemakerQueue;
 
@@ -60,7 +64,7 @@ public class BrevoService {
     	System.out.println(apiKey);
         System.out.println("📨 BrevoService.sendVerificationEmail() called for: " + toEmail);
 
-        String verifyLink = "http://localhost:5173/verify?token=" + token;
+        String verifyLink = frontendUrl + "/verify?token=" + token;
 
         // 🧩 Styled HTML email template
         String htmlContent = """
