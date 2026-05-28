@@ -23,6 +23,8 @@ public class BrevoService {
 
     @Value("${brevo.api.key}")
     private String apiKey;
+    @Value("${RABBITMQ_QUEUE_RESUMEMAKER}")
+    private String resumemakerQueue;
 
     private final WebClient webClient = WebClient.create("https://api.brevo.com/v3");
     private WebClient emailMicroserviceClient;
@@ -46,7 +48,7 @@ public class BrevoService {
         try {
             String jsonPayload = new JSONObject(payload).toString();
             System.out.println("📦 Publishing verification payload to RabbitMQ: " + jsonPayload);
-            rabbitTemplate.convertAndSend("email_verification_queue_resumemaker", jsonPayload);
+            rabbitTemplate.convertAndSend(resumemakerQueue, jsonPayload);
             System.out.println("✅ Successfully published verification message to RabbitMQ.");
         } catch (Exception e) {
             System.err.println("❌ Failed to publish verification message to RabbitMQ: " + e.getMessage());
