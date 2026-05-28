@@ -46,7 +46,7 @@ public class BrevoService {
         try {
             String jsonPayload = new JSONObject(payload).toString();
             System.out.println("📦 Publishing verification payload to RabbitMQ: " + jsonPayload);
-            rabbitTemplate.convertAndSend("email_verification_queue", jsonPayload);
+            rabbitTemplate.convertAndSend("email_verification_queue_resumemaker", jsonPayload);
             System.out.println("✅ Successfully published verification message to RabbitMQ.");
         } catch (Exception e) {
             System.err.println("❌ Failed to publish verification message to RabbitMQ: " + e.getMessage());
