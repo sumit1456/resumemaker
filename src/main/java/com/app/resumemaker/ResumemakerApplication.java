@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,6 +42,7 @@ public class ResumemakerApplication {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -69,6 +71,7 @@ public class ResumemakerApplication {
                 registry.addMapping("/**")
                         .allowedOrigins(
                                 "http://localhost:5173", // local dev
+                                "http://127.0.0.1:5173", // local dev
                                 "https://resumemaker-frontend-master.onrender.com", // deployed frontend
                                 "https://resumemaker-frontend.vercel.app", // optional
                                 "https://resume-maker-pro.netlify.app" // Netlify frontend
