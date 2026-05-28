@@ -23,6 +23,9 @@ public class ResumemakerApplication {
             app.setDefaultProperties(Map.of("server.port", port));
         }
         app.run(args);
+        System.out.println("=======================================");
+        System.out.println("Application has been started v1");
+        System.out.println("=======================================");
     }
 
     // Password encoder for registration/login
@@ -52,7 +55,7 @@ public class ResumemakerApplication {
                                 "/login",
                                 "/google-login",
                                 "/ping",
-                                "/pdf-extraction-config" )
+                                "/pdf-extraction-config")
                         .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(
