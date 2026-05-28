@@ -23,7 +23,7 @@ public class BrevoService {
 
     @Value("${brevo.api.key}")
     private String apiKey;
-    @Value("${RABBITMQ_QUEUE_RESUMEMAKER}")
+    @Value("${RABBITMQ_QUEUE_RESUMEMAKER:email_resumemaker_queue}")
     private String resumemakerQueue;
 
     private final WebClient webClient = WebClient.create("https://api.brevo.com/v3");

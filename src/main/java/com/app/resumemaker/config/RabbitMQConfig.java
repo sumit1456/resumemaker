@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 @Configuration
 public class RabbitMQConfig {
 
-    @Value("${RABBITMQ_QUEUE_RESUMEMAKER}")
+    @Value("${RABBITMQ_QUEUE_RESUMEMAKER:email_resumemaker_queue}")
     private String queueName;
 
     @Bean
