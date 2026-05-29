@@ -54,6 +54,7 @@ public class ResumemakerApplication {
                                 "/v2/signup",
                                 "/login",
                                 "/google-login",
+                                "/verify",
                                 "/ping",
                                 "/pdf-extraction-config")
                         .permitAll()
