@@ -75,8 +75,6 @@ public class ResumemakerApplication {
                         .allowedOrigins(
                                 "http://localhost:5173", // local dev
                                 "http://127.0.0.1:5173", // local dev
-                                "https://resumemaker-frontend-master.onrender.com", // deployed frontend
-                                "https://resumemaker-frontend.vercel.app", // optional
                                 "https://resume-maker-pro.netlify.app" // Netlify frontend
                 )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
