@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.resumemaker.service.VerificationService;
 
 @RestController
-@CrossOrigin(origins = "https://resume-maker-pro.netlify.app")
+@CrossOrigin(originPatterns = "*")
 public class VerificationController {
 	
 	 @Autowired private VerificationService verificationService;

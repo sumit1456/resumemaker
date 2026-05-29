@@ -73,11 +73,7 @@ public class ResumemakerApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins(
-                                "http://localhost:5173", // local dev
-                                "http://127.0.0.1:5173", // local dev
-                                "https://resume-maker-pro.netlify.app" // Netlify frontend
-                )
+                        .allowedOriginPatterns("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
