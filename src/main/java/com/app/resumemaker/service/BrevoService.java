@@ -126,11 +126,25 @@ public class BrevoService {
             .subscribe();
     }
     
-    @PostConstruct
-    public void testKey() {
-        
-    }
+@PostConstruct
+public void testKey() {
+    try {
+        String response = webClient.get()
+                .uri("/account")
+                .header("accept", "application/json")
+                .header("api-key", apiKey)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
 
+        System.out.println("✅ Brevo API connection successful");
+        System.out.println("📦 Account Info: " + response);
+
+    } catch (Exception e) {
+        System.err.println("❌ Failed to connect to Brevo API");
+        System.err.println("❌ Error: " + e.getMessage());
+    }
+}
     
     
     
