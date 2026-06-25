@@ -33,6 +33,18 @@ public class GlobalExceptionHandler {
 		 
 	 }
 	 
+	 @ExceptionHandler(RateLimitExceededException.class)
+	 public ResponseEntity<Map<String, String>> handleRateLimit(RateLimitExceededException ex) {
+	     String message = ex.getMessage();
+	     String retryAfter = "60";
+	     try {
+	         retryAfter = message.replaceAll("[^0-9]", "");
+	     } catch (Exception ignored) {}
+	     return ResponseEntity.status(429)
+	             .header("Retry-After", retryAfter)
+	             .body(Map.of("error", message));
+	 }
+
 	 @ExceptionHandler(Exception.class)
 	 public void catchAll(Exception e) {
 	     e.printStackTrace();

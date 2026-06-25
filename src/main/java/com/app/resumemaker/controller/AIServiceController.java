@@ -56,22 +56,15 @@ public class AIServiceController {
             return ResponseEntity.ok(json);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(
-                    Map.of("error", "AI returned invalid JSON", "raw", aiOutput)
-            );
+                    Map.of("error", "AI returned invalid JSON", "raw", aiOutput));
         }
     }
-    
-    
-
-    
-    
-    
 
     @PostMapping("/create-report")
     public ResponseEntity<?> createReport(@RequestBody ResumeComparisonRequest payload) {
         System.out.println("Create report was called");
-    	
-    	Map<String, Object> oldResume = payload.getOldResume();
+
+        Map<String, Object> oldResume = payload.getOldResume();
         Map<String, Object> newResume = payload.getNewResume();
 
         if (oldResume == null || newResume == null) {
@@ -82,11 +75,9 @@ public class AIServiceController {
 
         System.out.println("Printing the output of create service");
         System.out.println(diff);
-        return ResponseEntity.ok(diff); 
+        return ResponseEntity.ok(diff);
     }
 
-    
-    
     @PostMapping("/enhanceResume")
     public ResponseEntity<?> enhanceResume(@RequestBody ResumeDTO dto) {
         System.out.println("Enhance Resume was called");
@@ -117,14 +108,12 @@ public class AIServiceController {
         }
     }
 
-    
-//    
-//    @PostMapping("/analyze-diff")
-//    public ResponseEntity<Map<String, Object>> analyzeDiff(@RequestBody DiffRequest req) {
-//        Map<String, Object> diffJson = groqService.generateDiffJson(req);
-//        return ResponseEntity.ok(diffJson);
-//    }
-
+    //
+    // @PostMapping("/analyze-diff")
+    // public ResponseEntity<Map<String, Object>> analyzeDiff(@RequestBody
+    // DiffRequest req) {
+    // Map<String, Object> diffJson = groqService.generateDiffJson(req);
+    // return ResponseEntity.ok(diffJson);
+    // }
 
 }
-
