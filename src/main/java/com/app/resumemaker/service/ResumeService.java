@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.app.resumemaker.annotation.APITime;
 import com.app.resumemaker.dto.*;
 import com.app.resumemaker.model.*;
 import com.app.resumemaker.respository.ResumeRepository;
@@ -35,12 +36,10 @@ public class ResumeService {
     // --------------------------
     // Save or Create Resume
     // --------------------------
+    @APITime
     public Long saveResume(ResumeDTO dto) {
         if (dto == null || dto.getDetails() == null || dto.getContact() == null)
             return null;
-
-        System.out.println(dto);
-        System.out.println(dto.getUserId());
 
         Resume resume = new Resume();
         resume.setTemplateId(dto.getTemplateId());
@@ -64,7 +63,6 @@ public class ResumeService {
         // Map Section Titles (JSON)
 
         Object o = dto.getSectionTitles();
-        System.out.println(o);
 
         // Map Style Config (JSON)
         // Map Style Config (JSON)
@@ -167,7 +165,6 @@ public class ResumeService {
                 }
                 cust.setResume(resume);
                 resume.getCustomSections().add(cust);
-                System.out.println(cust);
 
             });
         }
@@ -183,6 +180,7 @@ public class ResumeService {
 
     }
 
+    @APITime
     public void updateResume(Long resumeId, ResumeDTO dto) {
         if (resumeId == null || dto == null)
             return;
@@ -225,7 +223,6 @@ public class ResumeService {
 
         // Update StyleConfig
         if (dto.getStyleConfig() != null) {
-            System.out.println("Updating Style Config: " + dto.getStyleConfig());
             StyleConfigEntity styleConfig = existingResume.getStyleConfig();
             if (styleConfig == null) {
                 styleConfig = new StyleConfigEntity();
@@ -332,6 +329,7 @@ public class ResumeService {
     // --------------------------
     // Fetch all resumes for a user (minimal info for MyResumes.jsx)
     // --------------------------
+    @APITime
     public List<ResumeDTO> getAllResumesByUser(Long userId) {
         List<Resume> resumes = resumeRepository.findAllByUserId(userId);
         List<ResumeDTO> dtos = new ArrayList<>();
@@ -357,6 +355,7 @@ public class ResumeService {
     // --------------------------
     // Fetch full resume by ID (for ResumeViewer.jsx)
     // --------------------------
+    @APITime
     public ResumeDTO getResumeById(Long resumeId) {
         Resume resume = resumeRepository.findResumeWithAllDetails(resumeId);
         if (resume == null)
@@ -393,8 +392,6 @@ public class ResumeService {
                 e.printStackTrace();
             }
         }
-
-        System.out.println(resume.getStyleConfig());
 
         return dto;
     }
@@ -523,6 +520,7 @@ public class ResumeService {
         return list;
     }
 
+    @APITime
     public String deleteResume(Long resumeId) {
         Resume rs = resumeRepository.findById(resumeId).get();
         resumeRepository.delete(rs);
@@ -530,6 +528,7 @@ public class ResumeService {
 
     }
 
+    @APITime
     public String extractTextFromPdf(MultipartFile file) throws IOException {
         try (PDDocument document = PDDocument.load(file.getInputStream())) {
             PDFTextStripper pdfStripper = new PDFTextStripper();

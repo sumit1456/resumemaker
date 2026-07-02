@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.resumemaker.annotation.APITime;
 import com.app.resumemaker.dto.GoogleLoginRequest;
 import com.app.resumemaker.dto.LoginRequestDTO;
 import com.app.resumemaker.dto.SignupRequestDto;
@@ -36,11 +37,10 @@ public class UserController {
     }
 
     // Simple sign-up (creates a new user record)
+    @APITime
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequestDto dto) {
         try {
-            System.out.println("The data sent to signup");
-            System.out.println(dto);
             authService.registerUser(dto);
             return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -54,11 +54,10 @@ public class UserController {
     }
 
     // Simple sign-up V2 (uses external email microservice)
+    @APITime
     @PostMapping("/v2/signup")
     public ResponseEntity<?> registerUserV2(@RequestBody SignupRequestDto dto) {
         try {
-            System.out.println("The data sent to V2 signup");
-            System.out.println(dto);
             authService.registerUserV2(dto);
             return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -71,6 +70,7 @@ public class UserController {
         }
     }
 
+    @APITime
     @PostMapping("/login")
     public ResponseEntity<?> loginRequest(@RequestBody LoginRequestDTO dto) {
 
@@ -95,9 +95,9 @@ public class UserController {
         }
     }
 
+    @APITime
     @PostMapping("/google-login")
     public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest request) {
-        System.out.println("📩 Google login request received");
 
         try {
             Map<String, Object> authData = authService.loginWithGoogle(request.getToken());

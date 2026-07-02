@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.app.resumemaker.annotation.APITime;
 import com.app.resumemaker.dto.BsaicInfoDTO;
 import com.app.resumemaker.dto.ResumeDTO;
 import com.app.resumemaker.model.BasicInfoEntity;
@@ -43,11 +44,9 @@ public class ResumeController {
 	GroqAIService gs;
 
 	
+	@APITime
 	@PostMapping("/saveall")
 	public ResponseEntity<Map<String, Object>> saveAll(@RequestBody ResumeDTO dto) {
-	    System.out.println("===========================================");
-	    System.out.println("Save all was called");
-	    System.out.println("===========================================");
 
 	    // Save the resume and get the generated ID
 	    Long resumeId = rs.saveResume(dto); // make sure your service returns the generated resumeId
@@ -56,14 +55,13 @@ public class ResumeController {
 	    Map<String, Object> response = new HashMap<>();
 	    response.put("message", "Resume saved successfully");
 	    response.put("resumeId", resumeId);
-	    System.out.println(response);
 
 	    return ResponseEntity.ok(response);
 	}
 
+	@APITime
 	@PutMapping("/update/{resumeId}")
 	public ResponseEntity<String> updateAll(@RequestBody ResumeDTO dto, @PathVariable Long resumeId) {
-		System.out.println("resume update request has been made");
 	    try {
 	        rs.updateResume(resumeId, dto);
 	        return ResponseEntity.ok("Resume updated successfully");
@@ -80,9 +78,9 @@ public class ResumeController {
     // --------------------------
     // Get all resumes for a user
     // --------------------------
+    @APITime
     @GetMapping("/my-resumes/{userId}")
     public ResponseEntity<List<ResumeDTO>> getAllResumesByUser(@PathVariable Long userId) {
-    	System.out.println("Requested all resumes - ");
         List<ResumeDTO> resumes = rs.getAllResumesByUser(userId);
         return ResponseEntity.ok(resumes);
     }
@@ -90,22 +88,18 @@ public class ResumeController {
     // --------------------------
     // Get single resume by ID (full details)
     // --------------------------
+    @APITime
     @GetMapping("/my-resumes/getresume/{resumeId}")
     public ResponseEntity<ResumeDTO> getResumeById(@PathVariable Long resumeId) {
-        System.out.println("TGhe rrquest was made for viewing single resume");
         ResumeDTO resume = rs.getResumeById(resumeId);
         if (resume == null) {
             return ResponseEntity.notFound().build();
         }
         
-        System.out.println("======================================");
-        System.out.println("THis what we return when fetched a single resume");
-        System.out.println(resume);
-        
-        System.out.println("=========================================");
         return ResponseEntity.ok(resume);
     }
     
+    @APITime
     @DeleteMapping("/my-resumes/delete-resume/{resumeId}")
     public ResponseEntity<String> deleteUser(@PathVariable Long resumeId) {
         String res = rs.deleteResume(resumeId);
@@ -114,6 +108,7 @@ public class ResumeController {
 
     
     
+    @APITime
     @PostMapping("/uploadResume")
     public ResponseEntity<?> uploadResume(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
@@ -141,9 +136,6 @@ public class ResumeController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(Map.of("error", "AI returned invalid or truncated JSON."));
             }
-            
-            
-            System.out.println(jsonResponse);
 
             // 5️⃣ Return parsed JSON to frontend
             return ResponseEntity.ok().body(jsonResponse);

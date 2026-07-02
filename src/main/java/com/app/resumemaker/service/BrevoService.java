@@ -4,6 +4,8 @@ import java.util.List;
 
 import java.util.Map;
 
+import com.app.resumemaker.annotation.APITime;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -41,9 +43,8 @@ public class BrevoService {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
+    @APITime
     public void sendVerificationEmailV2(String toEmail, String token) {
-        System.out.println("📨 BrevoService.sendVerificationEmailV2() called for: " + toEmail);
-
         Map<String, String> payload = Map.of(
             "email", toEmail,
             "token", token
@@ -51,19 +52,15 @@ public class BrevoService {
 
         try {
             String jsonPayload = new JSONObject(payload).toString();
-            System.out.println("📦 Publishing verification payload to RabbitMQ: " + jsonPayload);
             rabbitTemplate.convertAndSend(resumemakerQueue, jsonPayload);
-            System.out.println("✅ Successfully published verification message to RabbitMQ.");
         } catch (Exception e) {
             System.err.println("❌ Failed to publish verification message to RabbitMQ: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+    @APITime
     public void sendVerificationEmail(String toEmail, String token) {
-    	System.out.println(apiKey);
-        System.out.println("📨 BrevoService.sendVerificationEmail() called for: " + toEmail);
-
         String verifyLink = frontendUrl + "/verify?token=" + token;
 
         // 🧩 Styled HTML email template
@@ -112,8 +109,6 @@ public class BrevoService {
             "htmlContent", htmlContent
         );
 
-        System.out.println("📦 Sending payload to Brevo: " + emailData);
-
         webClient.post()
             .uri("/smtp/email")
             .header("accept", "application/json")
@@ -121,7 +116,7 @@ public class BrevoService {
             .bodyValue(emailData)
             .retrieve()
             .bodyToMono(String.class)
-            .doOnNext(response -> System.out.println("✅ Brevo Response: " + response))
+            .doOnNext(response -> {})
             .doOnError(err -> System.err.println("❌ Brevo Error: " + err.getMessage()))
             .subscribe();
     }
@@ -136,9 +131,6 @@ public void testKey() {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-
-        System.out.println("✅ Brevo API connection successful");
-        System.out.println("📦 Account Info: " + response);
 
     } catch (Exception e) {
         System.err.println("❌ Failed to connect to Brevo API");

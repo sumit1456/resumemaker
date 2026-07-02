@@ -1,5 +1,6 @@
 package com.app.resumemaker.service;
 
+import com.app.resumemaker.annotation.APITime;
 import com.app.resumemaker.annotation.RateLimited;
 import com.app.resumemaker.diff.ResumeComparisonDiff;
 import com.app.resumemaker.dto.ResumeDTO;
@@ -53,6 +54,7 @@ public class GroqAIService {
     this.redisTemplate = redisTemplate;
   }
 
+  @APITime
   @RateLimited(limit = 1, window = 60)
   public String analyze(String jobDescription, String resumeJson) {
     try {
@@ -252,6 +254,7 @@ public class GroqAIService {
   // }
   // }
 
+  @APITime
   @RateLimited(limit = 1, window = 60)
   public String enhanceResumeSimple(ResumeDTO resumeDTO) {
     try {
@@ -351,7 +354,6 @@ public class GroqAIService {
       JSONObject message = firstChoice.getJSONObject("message");
       String enhancedResumeJson = message.getString("content");
 
-      System.out.println("Only the enhanced resume JSON:\n" + enhancedResumeJson);
       return enhancedResumeJson;
 
     } catch (Exception e) {
@@ -377,6 +379,7 @@ public class GroqAIService {
     }
   }
 
+  @APITime
   @RateLimited(limit = 1, window = 60)
   public ResumeComparisonDiff compareResumes(Map<String, Object> oldResume, Map<String, Object> newResume) {
     ObjectMapper mapper = new ObjectMapper();
@@ -444,6 +447,7 @@ public class GroqAIService {
     }
   }
 
+  @APITime
   @RateLimited(limit = 1, window = 60)
   public String generateResumeFromPdf(String normalizedText) {
     try {
@@ -541,7 +545,6 @@ public class GroqAIService {
           .bodyToMono(String.class);
 
       String response = responseMono.block();
-      System.out.println(response);
       return response; // raw JSON string
 
     } catch (Exception e) {
