@@ -1,3 +1,4 @@
+
 package com.app.resumemaker;
 
 import java.util.List;
@@ -65,6 +66,7 @@ public class ResumemakerApplication {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
+                                "/actuator/**",
                                 "/signup",
                                 "/v2/signup",
                                 "/login",
@@ -128,3 +130,4 @@ public class ResumemakerApplication {
     }
 
 }
+

@@ -15,6 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.annotation.PostConstruct;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+
 import com.app.resumemaker.annotation.APITime;
 import com.app.resumemaker.dto.*;
 import com.app.resumemaker.model.*;
@@ -32,6 +36,23 @@ public class ResumeService {
 
     @Autowired
     private UserRepository userrepo;
+
+    @Autowired
+    private MeterRegistry meterRegistry;
+
+    private Counter resumeSavedCounter;
+    private Counter resumeUpdatedCounter;
+
+    @PostConstruct
+    public void initCounters() {
+        this.resumeSavedCounter = Counter.builder("resumes.saved.total")
+                .description("Total number of new resumes saved in database")
+                .register(meterRegistry);
+
+        this.resumeUpdatedCounter = Counter.builder("resumes.updated.total")
+                .description("Total number of resumes updated in database")
+                .register(meterRegistry);
+    }
 
     // --------------------------
     // Save or Create Resume
@@ -175,9 +196,11 @@ public class ResumeService {
 
         // Save Resume
         resumeRepository.save(resume);
+        if (resumeSavedCounter != null) {
+            resumeSavedCounter.increment();
+        }
 
         return resume.getId();
-
     }
 
     @APITime
@@ -324,6 +347,9 @@ public class ResumeService {
 
         // ✅ Save changes
         resumeRepository.save(existingResume);
+        if (resumeUpdatedCounter != null) {
+            resumeUpdatedCounter.increment();
+        }
     }
 
     // --------------------------
